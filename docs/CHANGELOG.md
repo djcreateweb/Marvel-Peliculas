@@ -16,6 +16,64 @@ formal); las entradas se agrupan por fecha de sesión de trabajo.
 
 ---
 
+## [2026-07-23] — Parte 3: Estantería de pósters, nota v3, hero Endgame y reestructura
+
+Rediseño de las pestañas Resúmenes/Plataforma y del selector de nota,
+fondo Endgame protagonista en el hero, y reestructura del proyecto en
+carpetas. Contratos técnicos (KEYs de `localStorage`, identidad `t`,
+`TAB_IDS`, orden `buildXmen()`/`buildChecklist()`) intactos.
+
+### Añadido
+- **Estantería de pósters** en Resúmenes y Plataforma: cada título es una
+  tarjeta-póster (`.media-card`) donde toda la tarjeta es un único `<a>`
+  (YouTube o Google según pestaña), con chip de acción siempre visible
+  (`▶ Resumen` rojo / `🔍 Dónde verla` lila), velo con icono grande en
+  hover/focus e insignia verde "ya vista" sincronizada con el checklist
+  (`mediaRefs` en `updateItemUI`). Rejilla responsive: 3 columnas en
+  móvil (<600px), `auto-fill minmax(150-164px)` en tablet/escritorio.
+- **Nota v3**: cabecera contextual «Tu nota · [título]» dentro del
+  popover/sheet; efecto "medidor" (`.is-fill`: las opciones hasta la
+  señalada se encienden con gradiente lila→azul). Escritorio = escala
+  0–10 en fila única; móvil = bottom sheet con rejilla de 4 columnas y
+  botones ≥52px. «Sin nota» va visualmente al final (CSS `order`) pero
+  sigue primera en el DOM (contrato de teclado del listbox intacto).
+- `js/data.js` (DATA, XMEN_DATA, PRESET_VISTO) y `js/app.js` (toda la
+  lógica): el `<script>` inline de `index.html` queda extraído; orden de
+  carga obligatorio `images-posters.js → data.js → app.js`.
+- Animación de entrada `heroDrift` (zoom lento 1.07→1) en el hero,
+  neutralizada por `prefers-reduced-motion`.
+- Carpetas `docs/` (CHANGELOG, DOCUMENTACION, disney-links) y `archivo/`
+  (legacy); `design/` absorbe `DISENO-*.md` y `preview-fondo.html`
+  (rutas CSS internas ajustadas a `../css/`).
+
+### Cambiado
+- Hero: velos mucho más ligeros (el backdrop de Endgame por fin se ve);
+  en móvil un único gradiente vertical (imagen limpia arriba, oscurecido
+  progresivo abajo, donde vive el texto).
+- Textos de introducción de Resúmenes y Plataforma adaptados a la nueva
+  interacción (toda la tarjeta es el enlace).
+
+### Corregido
+- **El hero salía sin fotografía**: una `url()` relativa dentro de una
+  custom property (`--hero-img`) se resuelve contra la hoja que la
+  consume (`css/styles.css`), no contra el documento → apuntaba a
+  `css/assets/…` (inexistente). `setupHeroBg()` ahora inyecta la URL
+  absoluta (`new URL(HERO_LOCAL, document.baseURI)`).
+- **Bottom nav móvil pegada bajo la cabecera**: la regla tardía
+  `.tabs-bar{top:var(--topbar-h)}` de la capa "Multiverso 2.0" pisaba el
+  `top:auto` del bloque móvil; re-asertado `top:auto;bottom:0` en el
+  `@media (max-width:899px)` de esa capa.
+- «Sin nota» seleccionada ya no hereda el gradiente CTA de los números
+  (tinte suave propio, override tras la regla `aria-selected`).
+
+### Eliminado
+- `.action-row`, `.action-grid` y `.cta` (filas con CTA de Resúmenes/
+  Plataforma), sustituidos por `.media-grid`/`.media-card`.
+- `posters.data.js` y `plataformas.data.js` de la raíz → `archivo/`
+  (legacy sin referencias desde `index.html`).
+
+---
+
 ## [2026-07-23] — Parte 2: Rediseño integral "Multiverso"
 Rediseño visual y de layout completo ejecutado en 8 fases según
 `design/PLAN-REDISENO-PRO.md` (brief de decisiones). Commit `9f3e507`.

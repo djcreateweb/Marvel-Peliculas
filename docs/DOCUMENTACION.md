@@ -337,3 +337,68 @@ de agente que editan el mismo `index.html` de forma concurrente; la
 
 ---
 *Documentado por: documentacion-agent · 2026-07-23*
+
+---
+
+# Sesión 2026-07-23 (parte 3) — Estantería, nota v3, hero Endgame y reestructura
+
+## 🎯 Objetivo (petición del usuario)
+Rediseñar las pestañas **Resúmenes** y **Plataforma**, rediseñar **la forma
+de dar nota**, poner **el fondo de Endgame en el comienzo** (hero), que todo
+funcione **perfecto en móvil**, y **reestructurar el proyecto** para que la
+mayoría de ficheros esté en carpetas.
+
+## 📁 Reestructura (git mv, sin commit)
+- `docs/` ← CHANGELOG.md, DOCUMENTACION.md, disney-links.md
+- `design/` ← DISENO-FONDO-MARCA.md, DISENO-SPEC.md, DISENO-UI-RATING.md,
+  preview-fondo.html (sus `<link>` pasan a `../css/`)
+- `archivo/` ← posters.data.js, plataformas.data.js (legacy, sin referencias)
+- Raíz: solo `index.html` + `CLAUDE.md`
+- **Extracción del JS inline**: `index.html` queda solo con markup;
+  nuevos `js/data.js` (DATA/XMEN_DATA/PRESET_VISTO, copiados literalmente,
+  ningún `t` tocado) y `js/app.js` (lógica IIFE). Orden de carga:
+  `images-posters.js → data.js → app.js`.
+
+## 🎨 Rediseños aplicados
+1. **Resúmenes/Plataforma → estantería de pósters** (`.media-grid` /
+   `.media-card`): tarjeta-póster donde todo el `<a>` es el enlace; chip de
+   acción siempre visible (▶ Resumen rojo YouTube / 🔍 Dónde verla lila),
+   velo con icono grande en hover/focus, insignia verde de "ya vista"
+   sincronizada vía `mediaRefs` en `updateItemUI()`. 3 columnas en <600px,
+   `auto-fill` 150–164px en adelante. Se eliminaron `.action-row`,
+   `.action-grid` y `.cta`.
+2. **Nota v3**: cabecera «Tu nota · título» en popover y sheet; efecto
+   "medidor" `.is-fill` (relleno lila→azul hasta la opción señalada);
+   escritorio = fila única 0–10 (30×32px), móvil = sheet de 4 columnas con
+   botones ≥52px; «Sin nota» visualmente al final vía CSS `order` (sigue
+   primera en el DOM: índices de teclado intactos); COLS de teclado
+   dinámico (sheet 4 / escritorio 1).
+3. **Hero Endgame**: velos rebajados (90deg .86→.05 y 0deg .6→0 en
+   escritorio; un solo gradiente vertical en ≤599px) + `heroDrift`
+   (scale 1.07→1.005, 16s, anulada por `prefers-reduced-motion`).
+
+## 🐛 Bugs reales encontrados y corregidos
+| Bug | Causa raíz | Fix |
+|---|---|---|
+| El hero nunca mostraba la fotografía (también en producción previa) | `url()` relativa dentro de la custom property `--hero-img` se resuelve contra la hoja consumidora (`css/styles.css`) → `css/assets/…` inexistente; al estar la variable definida, el fallback de `var()` no aplicaba | `setupHeroBg()` inyecta URL absoluta: `new URL(HERO_LOCAL, document.baseURI).href` |
+| Bottom nav móvil pegada bajo la cabecera | Regla tardía `.tabs-bar{top:var(--topbar-h)}` (capa MULTIVERSO, sin media query) pisaba `top:auto` del bloque `<900px`; con `height` definida, `bottom:0` se ignora | Re-aserción `top:auto;bottom:0` dentro del `@media (max-width:899px)` de la capa final |
+| «Sin nota» seleccionada con gradiente CTA | `.rating__option[aria-selected="true"]` de la capa final (misma especificidad, posterior) pisaba el estilo de la opción clear | Override explícito `.rating__option--clear[aria-selected="true"]` tras esa regla |
+
+## ✅ QA (Edge headless, `file://`)
+| Verificación | Resultado |
+|---|---|
+| Escritorio 1440px: hero con backdrop Endgame + texto legible | OK (captura) |
+| Resúmenes escritorio: estantería 6 col, chips, ticks, dividers | OK (captura) |
+| Plataforma escritorio: chips lila, pósters, tarjeta-enlace | OK (captura) |
+| Móvil real 390px (iframe): sin overflow horizontal, bottom nav abajo, hero legible | OK (captura) |
+| Sheet de nota móvil: cabecera + 4 col + «Sin nota» al final | OK (captura) |
+| Popover de nota escritorio: fila única 0–10 + cabecera | OK (captura) |
+| `DATA`/`XMEN_DATA`/`TAB_IDS`/`build*` presentes tras extracción | OK (grep, ver cierre de sesión) |
+
+Notas de QA headless (documentadas en CLAUDE.md § Notas de proceso):
+ancho mínimo de ventana ~500px en Windows (usar iframe de 390px para
+móvil); `--virtual-time-budget` ejecuta timers pero no espera imágenes
+lazy (pósters "vacíos" en capturas = artefacto, no bug).
+
+---
+*Documentado por: sesión Claude 2026-07-23 (parte 3)*

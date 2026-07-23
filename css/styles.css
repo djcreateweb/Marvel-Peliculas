@@ -493,34 +493,73 @@ img{max-width:100%;display:block}
 .rating__popover--up{ transform:scale(.94) translateY(4px); }
 .rating__popover--up.is-open{ transform:scale(1) translateY(0); }
 
-.rating__grid{
-  display:grid; grid-template-columns:repeat(6, 1fr); gap:4px;
+/* ── Cabecera contextual (v3): etiqueta + título del ítem ── */
+.rating__head{
+  display:flex; align-items:baseline; gap:8px;
+  margin:0 2px 8px;
+  padding-bottom:7px;
+  border-bottom:1px solid var(--steel-1);
+  min-width:0;
+}
+.rating__head-label{
+  flex-shrink:0;
+  font-family:var(--font-body); font-weight:var(--fw-semibold);
+  font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--brand-purple-bright);
+}
+.rating__head-title{
+  min-width:0;
+  font-family:var(--font-body); font-weight:500; font-size:11px;
+  color:var(--text-2);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 
-/* ── Opción "Sin nota" — fila superior de ancho completo ── */
+/* ── Escala v3: fila única 0–10 con relleno "medidor" ──
+   El DOM mantiene la opción "Sin nota" PRIMERA (índice 0 del listbox,
+   contrato de teclado intacto); visualmente se envía al final con
+   order:1 como acción de limpieza a ancho completo. */
+.rating__grid{
+  display:flex; flex-wrap:wrap; align-items:center; gap:4px;
+  max-width:calc(11 * 30px + 10 * 4px); /* 11 opciones por fila exactas */
+}
+
 .rating__option--clear{
-  grid-column:1 / -1;
+  order:1;
+  width:100%; flex:1 1 100%;
   display:flex; align-items:center; justify-content:center; gap:6px;
-  height:26px; margin-bottom:5px; padding-bottom:5px;
-  border-bottom:1px solid var(--steel-1);
+  min-height:28px; margin-top:6px; padding-top:6px;
+  border-top:1px solid var(--steel-1);
   font-family:var(--font-body); font-size:11.5px; font-weight:600;
   color:var(--steel-3);
+  border-radius:var(--r-md);
 }
 
 /* ── Opciones numéricas 0–10 ── */
 .rating__option{
   display:flex; align-items:center; justify-content:center;
-  width:26px; height:26px;
+  width:30px; height:32px;
   border-radius:var(--r-md);
-  font-family:var(--font-body); font-weight:var(--fw-semibold); font-size:12px;
+  background:rgba(255,255,255,.035);
+  border:1px solid transparent;
+  font-family:var(--font-body); font-weight:var(--fw-semibold); font-size:12.5px;
   color:var(--text-2);
   cursor:pointer; user-select:none;
   transition:background var(--dur-fast) var(--ease-smooth),
              color var(--dur-fast) var(--ease-smooth),
+             border-color var(--dur-fast) var(--ease-smooth),
              box-shadow var(--dur-fast) var(--ease-smooth),
              transform var(--dur-fast) var(--ease-smooth);
 }
 .rating__option:active{ transform:scale(.92); }
+
+/* Relleno del "medidor" (clase .is-fill puesta por setActiveOption):
+   todas las opciones numéricas hasta la señalada se encienden, como
+   una barra de energía lila→azul. */
+.rating__option.is-fill{
+  background:linear-gradient(180deg, rgba(139,92,246,.42), rgba(96,165,250,.30));
+  border-color:rgba(155,142,255,.35);
+  color:#fff;
+}
 
 /* Opción actualmente GUARDADA (aria-selected=true) — fondo sólido, texto blanco */
 .rating__option[aria-selected="true"]{
@@ -529,7 +568,7 @@ img{max-width:100%;display:block}
   box-shadow:0 2px 10px rgba(139,92,246,.4);
 }
 .rating__option--clear[aria-selected="true"]{
-  background:none; color:var(--text); border-bottom-color:var(--brand-purple);
+  background:none; color:var(--text); border-top-color:var(--brand-purple);
 }
 
 /* Opción actualmente RESALTADA por teclado/hover (independiente de si está guardada) */
@@ -584,18 +623,32 @@ img{max-width:100%;display:block}
    sheet (50) > scrim (45) > bottom nav (40), ver §7/§11. */
 .item:has(.rating__popover--sheet:not([hidden])){ z-index:50; }
 
-/* Rejilla de 6 columnas, botones ≥44×44px táctiles (§9 punto 8) */
+/* v3: rejilla de 4 columnas con botones grandes ≥52px táctiles
+   (0-3 / 4-7 / 8-10 + "Sin nota" a ancho completo al final).
+   El salto vertical de teclado usa COLS=4 en este modo (js/app.js). */
+.rating__popover--sheet .rating__head{
+  margin:0 4px 12px;
+  padding-bottom:10px;
+}
+.rating__popover--sheet .rating__head-label{ font-size:11px; }
+.rating__popover--sheet .rating__head-title{ font-size:13px; color:var(--text); }
 .rating__popover--sheet .rating__grid{
-  grid-template-columns:repeat(6, minmax(44px, 1fr));
-  gap:5px;
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:8px;
+  max-width:420px; margin:0 auto;
 }
 .rating__popover--sheet .rating__option{
-  width:auto; height:auto; min-height:44px;
-  font-size:16px;
+  width:auto; height:auto; min-height:52px;
+  border-radius:12px;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(183,189,237,.14);
+  font-size:17px;
 }
 .rating__popover--sheet .rating__option--clear{
-  height:auto; min-height:44px;
-  font-size:15px;
+  grid-column:1 / -1;
+  min-height:48px; margin-top:4px; padding-top:0;
+  border-top:none;
+  border:1px solid rgba(183,189,237,.14);
+  font-size:14px;
 }
 
 /* ── Scrim de fondo — único <div> reutilizado, insertado en <body> por JS ── */
@@ -623,11 +676,11 @@ body.sheet-open{
 #panel-xmen .panel-intro h2{ border-bottom:2px solid var(--especial); }
 .panel-intro p{ color:var(--text-2); font-size:13px; margin-top:7px; max-width:56ch; }
 
-/* Cabecera de grupo dentro de un .action-grid ("Universo Marvel" / "Saga X-Men"):
+/* Cabecera de grupo dentro de una .media-grid ("Universo Marvel" / "Saga X-Men"):
    etiqueta pequeña uppercase + regla que ocupa el ancho restante. */
 .list-divider{
   display:flex; align-items:center; gap:var(--sp-3);
-  margin-top:var(--sp-5); /* aire extra sobre el gap normal del .action-grid, separa del grupo anterior */
+  margin-top:var(--sp-5); /* aire extra sobre el gap normal de la .media-grid, separa del grupo anterior */
   font-family:var(--font-body); font-weight:var(--fw-semibold);
   font-size:var(--fs-label); letter-spacing:var(--tracking-label);
   text-transform:uppercase; color:var(--text-2); /* <13px (--fs-label=12px): --muted no cumple AA aquí (§9) */
@@ -636,56 +689,115 @@ body.sheet-open{
 .list-divider::after{ content:""; flex:1 1 auto; height:1px; background:var(--border); }
 .list-divider:first-child{ margin-top:0; } /* el primero no necesita aire extra: es el inicio de la lista */
 
-.action-grid{ display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
-.action-row{
-  display:grid; grid-template-columns:var(--poster-w) 1fr auto; align-items:center; gap:16px;
-  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
-  border-left:3px solid var(--type-tint);
-  padding:13px 16px 13px 13px;
-  transition:background var(--dur-fast) var(--ease-smooth),
+/* ── Estantería de pósters (rediseño 2026-07-23) ──
+   Cada título es una tarjeta-póster .media-card donde TODO el <a> es
+   el enlace (sin CTA aparte). El acento por pestaña lo dan los
+   modificadores --youtube (rojo) y --google (lila/azul de marca).
+   La tarjeta SÍ puede llevar overflow:hidden: dentro no vive ningún
+   popover (el contrato de CLAUDE.md aplica a .item/.grid, no aquí). */
+.media-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:16px 12px;
+  margin-bottom:12px;
+}
+.media-grid .list-divider{ grid-column:1 / -1; }
+
+.media-card{
+  position:relative;
+  display:flex; flex-direction:column;
+  text-decoration:none; color:inherit;
+  border-radius:14px;
+  background:linear-gradient(150deg,rgba(20,23,42,.94),rgba(14,16,30,.88));
+  border:1px solid rgba(183,189,237,.13);
+  box-shadow:0 8px 22px rgba(0,0,0,.13), inset 0 1px rgba(255,255,255,.035);
+  overflow:hidden;
+  transition:transform var(--dur-fast) var(--ease-smooth),
              border-color var(--dur-fast) var(--ease-smooth),
-             transform var(--dur-fast) var(--ease-smooth),
              box-shadow var(--dur-fast) var(--ease-smooth);
 }
-.action-row:focus-within{ background:var(--surface-2); border-color:var(--border-hover); transform:translateY(-2px); box-shadow:var(--shadow-sm); }
-.action-row__title{ font-weight:var(--fw-semibold); font-size:var(--fs-title); line-height:1.25; letter-spacing:0; }
-.action-row__date{ color:var(--muted); font-size:var(--fs-meta); line-height:1.4; letter-spacing:.01em; margin-top:3px; font-weight:400; }
-
-/* Modificador: fila completa clicable (pestaña Plataforma → abre Google) */
-.action-row--clickable{ cursor:pointer; }
-
-.cta{
-  display:inline-flex; align-items:center; gap:7px;
-  padding:8px 14px; border-radius:var(--r-md);
-  font-family:var(--font-body); font-weight:600; font-size:12.5px;
-  border:1px solid transparent; white-space:nowrap;
-  transition:background var(--dur-fast) var(--ease-smooth),
-             color var(--dur-fast) var(--ease-smooth),
-             border-color var(--dur-fast) var(--ease-smooth),
-             box-shadow var(--dur-fast) var(--ease-smooth),
-             transform var(--dur-fast) var(--ease-smooth);
-}
-.cta svg{ flex-shrink:0; }
-
-.cta--youtube{
-  background:rgba(208,32,26,.10); border-color:rgba(208,32,26,.4); color:var(--youtube-red-text);
-}
-/* :focus-visible replica el mismo realce del hover (§9: CTAs deben
-   tener foco de teclado equivalente); el :hover en sí vive en el
-   wrapper @media (hover:hover) más abajo. */
-.cta--youtube:focus-visible{
-  background:var(--youtube-red); border-color:var(--youtube-red); color:#fff;
-  box-shadow:0 4px 14px rgba(208,32,26,.35); transform:translateY(-1px);
+.media-card:focus-visible{
+  outline:2px solid var(--brand-blue-bright); outline-offset:2px;
+  transform:translateY(-3px); box-shadow:var(--shadow-md);
 }
 
-/* CTA "¿Dónde verla?" (pestaña Plataforma → búsqueda de Google) */
-.cta--google{
-  background:rgba(139,92,246,.10); border-color:rgba(139,92,246,.4); color:var(--brand-purple-bright);
+.media-card__art{
+  position:relative; display:block;
+  aspect-ratio:var(--poster-ratio);
+  background-image:linear-gradient(155deg, var(--type-tint) 0%, transparent 60%);
+  background-color:var(--surface-2);
+  overflow:hidden;
 }
-.cta--google:focus-visible{
-  background:var(--brand-gradient); border-color:transparent; color:#fff;
-  box-shadow:0 4px 14px rgba(139,92,246,.35); transform:translateY(-1px);
+.media-card__art img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:center; display:block;
+  transition:transform var(--dur-slow) var(--ease-smooth),
+             filter var(--dur-normal) var(--ease-smooth);
 }
+
+/* Velo de hover/focus: gradiente inferior + icono grande de la acción */
+.media-card__veil{
+  position:absolute; inset:0; z-index:2;
+  display:grid; place-items:center;
+  background:linear-gradient(180deg, rgba(7,9,19,0) 30%, rgba(7,9,19,.72) 100%);
+  opacity:0;
+  transition:opacity var(--dur-normal) var(--ease-smooth);
+  pointer-events:none;
+}
+.media-card__veil svg{
+  width:46px; height:46px; padding:12px;
+  border-radius:50%;
+  color:#fff;
+  background:rgba(10,12,26,.6);
+  border:1px solid rgba(255,255,255,.3);
+  backdrop-filter:blur(6px);
+  box-shadow:0 8px 24px rgba(0,0,0,.45);
+}
+.media-card--youtube .media-card__veil svg{ background:rgba(208,32,26,.88); border-color:rgba(255,120,120,.5); }
+.media-card--google .media-card__veil svg{ background:linear-gradient(135deg,#835ff1,#4e94ed); border-color:rgba(190,175,255,.55); }
+.media-card:focus-visible .media-card__veil{ opacity:1; }
+
+/* Chip de acción (siempre visible: en táctil no hay hover) */
+.media-card__chip{
+  position:absolute; z-index:3; top:8px; left:8px;
+  display:inline-flex; align-items:center; gap:5px;
+  padding:4px 9px;
+  border-radius:var(--r-full);
+  font-family:var(--font-body); font-weight:var(--fw-semibold);
+  font-size:9.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:#fff;
+  background:rgba(9,11,23,.72);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(8px);
+}
+.media-card__chip svg{ width:11px; height:11px; flex-shrink:0; }
+.media-card--youtube .media-card__chip{ background:rgba(148,17,13,.85); border-color:rgba(255,110,110,.42); }
+.media-card--google .media-card__chip{ background:rgba(84,58,196,.8); border-color:rgba(167,143,255,.48); }
+
+/* Insignia "ya vista" (clase .is-done sincronizada desde updateItemUI) */
+.media-card__seen{
+  position:absolute; z-index:3; top:8px; right:8px;
+  width:22px; height:22px; border-radius:50%;
+  display:none; place-items:center;
+  background:var(--done);
+  box-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+.media-card__seen svg{ width:12px; height:12px; stroke:var(--bg); stroke-width:3.4; fill:none; }
+.media-card.is-done .media-card__seen{ display:grid; }
+.media-card.is-done .media-card__art img{ filter:grayscale(.3) brightness(.72); }
+
+.media-card__body{
+  display:flex; flex-direction:column; gap:3px;
+  padding:10px 11px 12px;
+  min-height:58px;
+}
+.media-card__title{
+  font-family:var(--font-body); font-weight:var(--fw-semibold);
+  font-size:12.5px; line-height:1.3; color:#f1f2ff;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.media-card__meta{ font-size:10.5px; color:#8d93b2; letter-spacing:.02em; }
 
 footer{
   max-width:var(--container-max);margin:56px auto 0;padding:20px var(--sp-5) 0;
@@ -743,14 +855,17 @@ footer{
   .rating__star{ width:9px; height:9px; }
   .rating__chevron{ width:7px; height:7px; }
   .rating__value{ font-size:11px; min-width:12px; }
-  .rating__popover{ padding:7px; }
-  .rating__grid{ gap:3px; }
-  .rating__option{ width:24px; height:24px; font-size:11px; }
-  .rating__option--clear{ height:24px; font-size:11px; }
+  /* (el popover compacto no necesita overrides aquí: en <900px la nota
+     se abre siempre como bottom sheet — ver .rating__popover--sheet) */
 
   .list-divider{margin-top:var(--sp-4)}
-  .action-row{grid-template-columns:var(--poster-w) 1fr;row-gap:10px;padding:11px 12px 11px 11px}
-  .action-row .cta{grid-column:1 / -1;width:100%;justify-content:center;margin-top:2px}
+  /* Estantería tipo streaming: 3 pósters por fila en móvil */
+  .media-grid{grid-template-columns:repeat(3,1fr);gap:12px 8px}
+  .media-card__chip{padding:5px 6px}
+  .media-card__chip span{display:none} /* chip solo-icono: no tapa el póster estrecho */
+  .media-card__body{padding:8px 9px 10px;min-height:52px}
+  .media-card__title{font-size:11.5px}
+  .media-card__meta{font-size:9.5px}
 }
 
 /* ============ MÓVIL + TABLET — FASE 4: bottom navigation (<900px) ============
@@ -857,10 +972,8 @@ footer{
     border-left-color:var(--type-border); /* conserva el acento de tipo al pasar el ratón */
     transform:translateY(-2px); box-shadow:var(--shadow-sm);
   }
-  .action-row:hover{ background:var(--surface-2); border-color:var(--border-hover); transform:translateY(-2px); box-shadow:var(--shadow-sm); }
 
-  .item:hover .poster,
-  .action-row:hover .poster{ transform:scale(1.04); }
+  .item:hover .poster{ transform:scale(1.04); }
 
   .check:hover{ border-color:var(--done); }
   .meta:hover .title{ color:var(--blue-hover); }
@@ -870,14 +983,15 @@ footer{
   .rating__option:hover{ background:var(--surface); color:var(--text); }
   .rating__option--clear:hover{ background:var(--surface); color:var(--text); border-radius:var(--r-md); }
 
-  .cta--youtube:hover{
-    background:var(--youtube-red); border-color:var(--youtube-red); color:#fff;
-    box-shadow:0 4px 14px rgba(208,32,26,.35); transform:translateY(-1px);
+  .media-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(153,166,255,.38);
+    box-shadow:0 14px 30px rgba(0,0,0,.3);
   }
-  .cta--google:hover{
-    background:var(--brand-gradient); border-color:transparent; color:#fff;
-    box-shadow:0 4px 14px rgba(139,92,246,.35); transform:translateY(-1px);
-  }
+  .media-card--youtube:hover{ border-color:rgba(255,90,95,.55); }
+  .media-card--google:hover{ border-color:rgba(160,143,255,.6); }
+  .media-card:hover .media-card__art img{ transform:scale(1.06); }
+  .media-card:hover .media-card__veil{ opacity:1; }
 }
 
 /* ============ INTERACCIÓN ACTIVA — FASE 3 (§8) ============
@@ -888,7 +1002,7 @@ button,
 a,
 .check,
 .meta,
-.action-row--clickable,
+.media-card,
 .rating__option{
   -webkit-tap-highlight-color:transparent;
 }
@@ -896,8 +1010,7 @@ a,
 .tab:active,
 .reset:active,
 .check:active,
-.cta:active,
-.action-row--clickable:active,
+.media-card:active,
 .rating__trigger:active{
   transform:scale(.98);
 }
@@ -912,19 +1025,23 @@ a,
 
   /* Listas a 2 columnas, relleno row-major (conserva el orden
      cronológico de lectura izquierda→derecha). Sin "columns" CSS;
-     ni .grid ni .action-grid ni .item llevan overflow:hidden — el
+     ni .grid ni .item llevan overflow:hidden — el
      popover de nota debe poder desbordar la fila (contrato §10/CLAUDE.md). */
-  .grid,
-  .action-grid{
+  .grid{
     display:grid;
     grid-template-columns:repeat(auto-fill, minmax(440px, 1fr));
     gap:14px;
   }
   .list-divider{ grid-column:1 / -1; }
 
+  /* Estantería con más aire en escritorio */
+  .media-grid{
+    grid-template-columns:repeat(auto-fill, minmax(164px, 1fr));
+    gap:18px 14px;
+  }
+
   /* Densidad de fila: duración + tag + nota visibles sin abrir nada. */
-  .item,
-  .action-row{
+  .item{
     min-height:64px;
     padding:14px 18px;
   }
@@ -1032,15 +1149,20 @@ body{
   border-bottom:1px solid rgba(176,185,255,.13);
   background:#0c0e1c;
 }
+/* Fondo Endgame protagonista (rediseño 2026-07-23): velos mucho más
+   ligeros — la fotografía se ve de verdad; la legibilidad del texto la
+   garantizan el gradiente inferior + los text-shadow del contenido. */
 .hero-cinematic__media{
   background-image:
-    linear-gradient(90deg,rgba(6,8,18,.98) 0%,rgba(7,9,20,.84) 24%,rgba(8,10,23,.24) 62%,rgba(8,10,23,.58) 100%),
-    linear-gradient(0deg,#0b0d1b 0%,rgba(11,13,27,.76) 17%,rgba(11,13,27,.08) 65%),
+    linear-gradient(90deg,rgba(6,8,18,.86) 0%,rgba(7,9,20,.46) 30%,rgba(8,10,23,.05) 62%,rgba(8,10,23,.28) 100%),
+    linear-gradient(0deg,#0b0d1b 2%,rgba(11,13,27,.6) 20%,rgba(11,13,27,0) 56%),
     var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));
-  background-position:center,center,center 28%;
+  background-position:center,center,center 26%;
   background-size:cover;
-  filter:saturate(.92);
+  filter:saturate(1.05) contrast(1.03);
+  animation:heroDrift 16s var(--ease-smooth) both;
 }
+@keyframes heroDrift{ from{ transform:scale(1.07); } to{ transform:scale(1.005); } }
 .hero-cinematic__media::after{
   content:"";position:absolute;inset:0;
   background:radial-gradient(circle at 76% 26%,rgba(122,111,255,.18),transparent 30%),linear-gradient(120deg,transparent 48%,rgba(90,118,255,.1) 70%,transparent 86%);
@@ -1109,27 +1231,21 @@ main.wrap{padding-bottom:18px;}
 .duration{font-size:11px;color:#8e94b1;}
 .rating__trigger{min-height:28px;padding:0 9px;background:rgba(31,34,59,.9);border-color:rgba(177,184,238,.18);color:#bfc3df;}
 .rating[data-rating]:not([data-rating=""]) .rating__trigger{background:linear-gradient(110deg,rgba(123,87,236,.25),rgba(62,127,238,.15));border-color:rgba(149,126,255,.55);box-shadow:0 0 16px rgba(104,84,218,.18);}
-.rating__popover{padding:10px;background:linear-gradient(145deg,#272b4b,#171a30);border-color:rgba(176,165,255,.45);box-shadow:0 20px 46px rgba(0,0,0,.45),0 0 24px rgba(104,88,239,.18);}
-.rating__option{width:29px;height:29px;border-radius:8px;color:#bdc2dc;}
+.rating__popover{padding:11px 12px 12px;background:linear-gradient(145deg,#272b4b,#171a30);border-color:rgba(176,165,255,.45);box-shadow:0 20px 46px rgba(0,0,0,.45),0 0 24px rgba(104,88,239,.18);}
+.rating__option{color:#bdc2dc;} /* el tamaño (fila única 30×32 / sheet 4 col) lo fija la capa base v3 */
 .rating__option[aria-selected="true"]{background:linear-gradient(135deg,#835ff1,#4e94ed);box-shadow:0 5px 14px rgba(104,86,228,.4);}
+/* "Sin nota" seleccionada = estado por defecto: tinte suave, nunca el
+   gradiente CTA de los números (misma especificidad, debe ir después) */
+.rating__option--clear[aria-selected="true"]{background:rgba(131,95,241,.13);box-shadow:none;color:#e6e4ff;}
 
 .panel-intro{position:relative;margin:34px 0 28px;padding:21px 24px 22px;border:1px solid rgba(185,191,239,.15);border-radius:16px;background:linear-gradient(120deg,rgba(26,29,52,.88),rgba(13,16,30,.68));box-shadow:inset 0 1px rgba(255,255,255,.05);overflow:hidden;}
 .panel-intro::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(180deg,#8f72ff,#54a9ff);box-shadow:0 0 18px rgba(113,105,255,.7);}
 .panel-intro h2{padding-bottom:0!important;border:0!important;}
 .panel-intro p{max-width:68ch;margin-top:10px;color:#aeb2cc;font-size:13px;line-height:1.65;}
-.action-grid{gap:12px;}
 .list-divider{grid-column:1/-1;margin:10px 0 1px;padding:0 2px;color:#a8acc9;font-size:10px;letter-spacing:.18em;}
 .list-divider::after{background:linear-gradient(90deg,rgba(153,142,255,.36),transparent);}
-.action-row{min-height:90px;padding:11px 14px 11px 11px;border-radius:14px;background:linear-gradient(125deg,rgba(20,23,42,.94),rgba(14,16,30,.86));border-color:rgba(183,189,237,.13);box-shadow:0 8px 22px rgba(0,0,0,.13),inset 0 1px rgba(255,255,255,.035);}
-.action-row__title{font-size:14px;color:#f0f1ff;}
-.action-row__date{font-size:11px;color:#8d93b2;}
-.cta{min-height:34px;padding:0 12px;border-radius:8px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
-.cta--youtube{background:rgba(208,32,26,.12);border-color:rgba(255,90,95,.35);}
-.cta--google{background:rgba(126,101,245,.13);border-color:rgba(160,143,255,.36);}
-#panel-resumenes .action-row{border-left-color:rgba(255,90,95,.66);}
-#panel-plataforma .action-row{border-left-color:rgba(126,143,255,.74);}
-#panel-resumenes .action-row .poster{box-shadow:inset 0 0 0 1px rgba(255,90,95,.2),0 5px 12px rgba(0,0,0,.25);}
-#panel-plataforma .action-row .poster{box-shadow:inset 0 0 0 1px rgba(126,143,255,.24),0 5px 12px rgba(0,0,0,.25);}
+/* (la estantería .media-grid/.media-card del rediseño 2026-07-23 se
+   define completa en la sección "Estantería de pósters" de arriba) */
 
 footer{margin-top:74px;padding-top:23px;color:#858ba8;border-color:rgba(184,190,239,.12);font-size:11px;letter-spacing:.02em;}
 
@@ -1147,6 +1263,10 @@ footer{margin-top:74px;padding-top:23px;color:#858ba8;border-color:rgba(184,190,
   .hero-subtitle{max-width:52ch;}
   .tabs-inner{padding-top:0;}
   .tab.active{background:transparent;}
+  /* Re-asserta la bottom nav: la regla de escritorio de esta capa
+     (.tabs-bar{top:var(--topbar-h)}) pisaba el top:auto del bloque
+     móvil anterior y dejaba la nav pegada bajo la cabecera. */
+  .tabs-bar{top:auto;bottom:0;border-bottom:none;border-top:1px solid var(--border);box-shadow:0 -8px 24px rgb(0 0 0 / .35);}
 }
 
 @media (max-width:599px){
@@ -1157,8 +1277,10 @@ footer{margin-top:74px;padding-top:23px;color:#858ba8;border-color:rgba(184,190,
   .brand-mark{width:30px;height:30px;}
   .topbar-progress .pct{font-size:9px;letter-spacing:.05em;}
   .mini-bar{width:68px;height:5px;}
-  .hero-cinematic{min-height:650px;}
-  .hero-cinematic__media{background-image:linear-gradient(90deg,rgba(6,8,18,.98),rgba(7,9,20,.64)),linear-gradient(0deg,#0b0d1b 0%,rgba(11,13,27,.66) 36%,rgba(11,13,27,.1) 72%),var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));background-position:center,center,64% 28%;}
+  .hero-cinematic{min-height:620px;}
+  /* Móvil: un solo velo vertical — imagen limpia arriba, oscurecido
+     progresivo abajo donde vive el texto */
+  .hero-cinematic__media{background-image:linear-gradient(180deg,rgba(6,8,18,.5) 0%,rgba(7,9,20,.12) 30%,rgba(11,13,27,.8) 76%,#0b0d1b 100%),var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));background-position:center,62% 24%;}
   .hero-cinematic__content{padding:70px 16px 42px;}
   .hero-kicker{gap:7px;font-size:8px;letter-spacing:.12em;}
   .hero-kicker i{width:15px;}
@@ -1180,7 +1302,6 @@ footer{margin-top:74px;padding-top:23px;color:#858ba8;border-color:rgba(184,190,
   .phase{margin-top:38px;}
   .phase-head h2,.panel-intro h2{font-size:1.4rem;}
   .item{min-height:76px;}
-  .action-row{min-height:86px;}
   .panel-intro{margin-top:22px;padding:18px 18px 19px;}
   .panel-intro p{font-size:12px;}
 }

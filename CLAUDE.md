@@ -3,9 +3,9 @@
 ## Qué es
 
 Tracker de visionado del Universo Cinematográfico Marvel (MCU) + saga X-Men.
-Aplicación de un único fichero HTML (`index.html`) con CSS y JS separados en
-carpetas propias, sin build step, sin dependencias, sin backend. Se abre
-directamente en el navegador (`file://` o cualquier hosting estático).
+Aplicación estática sin build step, sin dependencias y sin backend:
+`index.html` es solo markup; el CSS vive en `css/` y el JS en `js/`.
+Se abre directamente en el navegador (`file://` o cualquier hosting estático).
 
 - HTML5 + CSS3 + JavaScript vanilla (ES2017, IIFE, `'use strict'`)
 - Persistencia 100% en `localStorage` del navegador (sin servidor, sin cuentas)
@@ -13,41 +13,51 @@ directamente en el navegador (`file://` o cualquier hosting estático).
 - Repo git **anidado** dentro del monorepo del Orquestador — no hacer commits
   automáticos aquí salvo petición explícita del usuario
 
-## Estructura de ficheros
+## Estructura de ficheros (reestructura 2026-07-23)
 
 ```
-index.html                  Documento único: markup + <script> inline con
-                             todo el JS de la app (DATA, XMEN_DATA, lógica).
+index.html                  SOLO markup + <script src> finales. Sin JS inline.
+CLAUDE.md                   Este fichero (único .md en la raíz).
 css/
   tokens.css                :root — paleta "Endgame" (lila/azul + acero),
                              tipografía, espaciado, sombras. Debe cargarse
                              antes que metal-title.css y styles.css.
   metal-title.css           Efecto metálico del <h1> del hero (.metal-title).
-  styles.css                Layout y componentes (tabs, .item, .action-row,
-                             rating popover, responsive ≤560px).
+  styles.css                Layout y componentes. Estructura interna: capa
+                             base (componentes) + capa final "MULTIVERSO 2.0"
+                             (skin) al fondo del fichero — al tocar la capa
+                             final, ojo con pisar reglas móviles de la base
+                             (ver hechos durables, bottom nav).
   background.css            Fondo animado fijo (.bg-fx), independiente del
                              resto — no se toca desde styles.css.
 js/
   images-posters.js         POSTERS_LOCAL (mapa título → ruta jpg) +
-                             HERO_LOCAL (imagen de fondo del hero). Se
-                             carga con <script src> ANTES del <script>
-                             inline de index.html.
-assets/posters/*.jpg        81 pósters descargados de TMDB (w500), uno por
-                             cada item de DATA + XMEN_DATA.
-assets/fondo/*.jpg           Fondos locales: hero panorámico, escena secundaria
-                             y skyline usados en las capas ambientales.
-design/, DISENO-*.md,
-disney-links.md             Documentos de diseño/spec previos (histórico,
-                             no autoritativos frente al código real).
+                             HERO_LOCAL. Se carga PRIMERO.
+  data.js                   DATA (6 fases MCU), XMEN_DATA, PRESET_VISTO.
+                             Se carga SEGUNDO.
+  app.js                    Toda la lógica de la app (IIFE). Se carga TERCERO.
+assets/posters/*.jpg        81 pósters TMDB (w500), uno por item.
+assets/fondo/*.jpg           endgame-backdrop.jpg (hero), endgame-backdrop-2 y
+                             stark-tower (capas ambientales de background.css).
+docs/                       CHANGELOG.md · DOCUMENTACION.md · disney-links.md
+design/                     Specs y previews de diseño (histórico, no
+                             autoritativo frente al código real):
+                             PLAN-REDISENO-PRO.md, DISENO-*.md,
+                             preview-fondo.html (sus <link> usan ../css/).
+archivo/                    Legacy sin referencias: posters.data.js,
+                             plataformas.data.js. No cargar desde index.html.
 ```
 
-No hay `package.json`, build tool ni tests automatizados. Toda la lógica de
-la app vive en el `<script>` inline de `index.html` (líneas ~161–856).
+**Orden de carga obligatorio** en `index.html`:
+`js/images-posters.js` → `js/data.js` → `js/app.js`. Los tres declaran
+`const` en el ámbito global del script clásico; `app.js` consume
+`POSTERS_LOCAL`, `HERO_LOCAL`, `DATA`, `XMEN_DATA` y `PRESET_VISTO`.
 
-## Datos: `DATA` y `XMEN_DATA`
+No hay `package.json`, build tool ni tests automatizados.
 
-Ambos son arrays de fases (`{phase, years, items:[...]}`) definidos dentro
-del `<script>` inline de `index.html`. Cada item tiene:
+## Datos: `DATA` y `XMEN_DATA` (js/data.js)
+
+Ambos son arrays de fases (`{phase, years, items:[...]}`). Cada item tiene:
 
 | Campo | Tipo | Significado |
 |-------|------|--------------|
@@ -75,86 +85,84 @@ respetarlas o migrar explícitamente los datos existentes.
    escribir una migración explícita — de lo contrario el usuario pierde
    todo su progreso guardado.
 2. **Identidad = campo `t`**: el título (`it.t`) es la clave primaria en
-   `state`, `ratings`, `POSTERS_LOCAL`, `itemRefs` y `titleToPhase`. No
-   renombrar el texto de un `t` ya publicado — eso desconecta el progreso
-   guardado de ese título (queda huérfano en localStorage y el nuevo título
-   aparece como "no visto").
+   `state`, `ratings`, `POSTERS_LOCAL`, `itemRefs`, `mediaRefs` y
+   `titleToPhase`. No renombrar el texto de un `t` ya publicado — eso
+   desconecta el progreso guardado de ese título.
 3. **`TAB_IDS` debe ir siempre en el mismo orden que los botones `.tab`
    del DOM.** Actualmente: `['checklist','xmen','resumenes','plataforma']`,
    igual que `#tab-checklist`, `#tab-xmen`, `#tab-resumenes`,
    `#tab-plataforma` en el HTML. El routing por hash (`tabNameFromHash`) y
    la navegación por teclado (flechas/Home/End) dependen de este orden.
 4. **`buildXmen()` debe llamarse después de `buildChecklist()`** en el
-   bootstrap final del script. `buildChecklist()` limpia (`.clear()`)
-   `itemRefs` y `phaseRefs` antes de reconstruirlos; si `buildXmen()` se
-   ejecutara antes, `buildChecklist()` borraría sus referencias.
+   bootstrap final de `js/app.js`. `buildChecklist()` limpia (`.clear()`)
+   `itemRefs` y `phaseRefs` antes de reconstruirlos. Análogamente,
+   `buildResumenes()` limpia `mediaRefs` y debe ejecutarse antes de
+   `buildPlataforma()` (ambas estanterías comparten ese mapa).
 5. **`.rating` necesita `position:relative`** (ancla del popover
    absolutamente posicionado) **y ni `.item` ni `.grid` deben tener
-   `overflow:hidden`** — el popover de nota (0–10) se renderiza fuera de
-   los límites de la fila y necesita poder desbordar visualmente.
+   `overflow:hidden`** — el popover de nota se renderiza fuera de los
+   límites de la fila. Excepción deliberada: `.media-card` SÍ lleva
+   `overflow:hidden` (recorta el zoom del póster) porque dentro de una
+   tarjeta de estantería no vive ningún popover.
+6. **Opción «Sin nota» primera en el DOM del listbox de nota**: los
+   índices de teclado (`optionEls`) asumen clear=0, números=1..11. Su
+   posición visual (al final) se cambia SOLO con CSS `order`, nunca
+   reordenando el DOM.
 
-## Rediseño "Multiverso" (2026-07-23 tarde) — hechos durables
+## Rediseño 2026-07-23 (parte 3) — hechos durables
 
-Rediseño visual/layout completo aplicado en 8 fases según
-`design/PLAN-REDISENO-PRO.md` (brief de decisiones, histórico — el
-código real de abajo manda si hay discrepancia). Detalle completo de las
-fases y del QA en `DOCUMENTACION.md`. Estos hechos son de referencia
-obligatoria para cualquier cambio futuro de layout/estilos:
-
-- **Breakpoints activos** (mobile-first, base pensada <900px como
-  móvil): `<600px` → fila `.item` compacta de 2 filas (`@media
-  (max-width:599px)`); `600–899px` → 1 columna de lista con fila de 1
-  línea (hereda reglas base, sin overrides); `<900px` (`@media
-  (max-width:899px)`) → bottom navigation fija + topbar reducida;
-  `≥900px` (`@media (min-width:900px)`) → 2 columnas de lista
-  (`grid-template-columns:repeat(auto-fill,minmax(440px,1fr))`), hero
-  panorámico, hovers reales (`@media (hover:hover) and (pointer:fine)`).
-- **Bottom nav = mismos botones `.tab`**: en `<900px` la `.tabs-bar` no es
-  un componente nuevo, es el mismo `<div>` con los 4 `.tab` (mismos
-  `id`/`data-tab`/`aria-*`) reposicionado a `position:fixed;bottom:0`.
-  `setupTabs()` sigue leyendo `data-tab`, no `textContent`: añadir
-  icono SVG + `.tab__label--short`/`.tab__label--full` dentro de cada
-  `.tab` es JS-safe.
-- **Jerarquía de `z-index`** (de mayor a menor, css/styles.css):
-  `.rating__popover--sheet` abierto en móvil → **50** · `.rating-scrim`
-  → **45** · `.tabs-bar` como bottom nav fija (`<900px`) → **40** ·
-  `.item:has(.rating__popover:not([hidden]))` (fila con popover/sheet
-  abierto) → **12** · `.topbar` sticky → **11** · `.tabs-bar` sticky de
-  escritorio (`≥900px`) → **9**. Si se toca cualquiera de estos valores,
-  hay que preservar este orden o el popover/sheet queda oculto tras
-  topbar/tabs-bar/bottom-nav.
-- **`body.sheet-open`**: clase que añade `openPopover()` (rating) al
-  `<body>` cuando el bottom sheet de nota está abierto en móvil —
-  aplica `overflow:hidden` + `overscroll-behavior:contain` para bloquear
-  el scroll de fondo. `closePopover()` debe retirarla siempre (incluida
-  al cerrar por scrim/Escape) o el body queda bloqueado.
-- **`isMobileSheet()`** (`window.matchMedia('(max-width:899px)').matches`)
-  se evalúa **en cada apertura** de `openPopover()`, no se cachea: si el
-  viewport cruza el breakpoint de 899px con el popover cerrado, la
-  siguiente apertura usa el modo correcto (sheet o popover anclado) sin
-  necesidad de recargar la página.
-- **Fondo ambiental multicapa**: `.bg-fx` combina las fotografías locales de
-  `assets/fondo/*` con glows y grano; `#posterWall` añade una selección de
-  posters locales como textura visual de baja opacidad. `HERO_LOCAL` apunta a
-  `assets/fondo/endgame-backdrop.jpg` para la portada cinematográfica.
-- **`css/tokens.css` tiene tokens canónicos + alias legacy**: los
-  nombres nuevos (`--surface-1/2/3`, `--accent`, `--accent-fill`,
-  `--accent-2`, `--accent-deep`, `--fs-hero/h2/title/body/meta/label/
-  stat/micro`, etc.) son la fuente de verdad; los nombres antiguos
-  (`--surface`, `--blue`, `--blue-hover`, `--brand-purple*`,
-  `--brand-blue*`, `--glow-purple`, `--glow-blue`, `--fs-eyebrow`,
-  `--fs-small`, `--fs-xs`, `--tracking-widest`) se conservan como
-  **alias** (`var(--nuevo-token)`) para no dejar ningún selector de
-  `styles.css`/`metal-title.css` sin resolver. No hay que eliminarlos
-  sin migrar antes cada selector que los usa — están marcados en el
-  fichero con el comentario `alias legacy — migrar en fases 1-4`.
+- **Resúmenes/Plataforma = estantería de pósters**: `buildMediaCard(it,kind)`
+  + `buildMediaShelf(containerId,kind)` en `js/app.js` generan tarjetas
+  `<a class="media-card media-card--youtube|--google">` (toda la tarjeta es
+  el enlace; no hay CTA separado). Contenedores `#resumenesList` y
+  `#plataformaList` llevan clase `.media-grid`. `mediaRefs` (Map título →
+  [tarjetas]) permite a `updateItemUI()` togglear `.is-done` (insignia
+  verde "ya vista") sin reconstruir el DOM.
+- **Nota v3**: popover con cabecera `.rating__head` («Tu nota · título»,
+  `aria-hidden`), escala 0–10 en fila única en escritorio y bottom sheet
+  con rejilla de 4 columnas en <900px. `setActiveOption()` aplica
+  `.is-fill` a las opciones numéricas hasta la activa (efecto "medidor").
+  El salto vertical de teclado se calcula en el keydown según el modo:
+  sheet → COLS=4, popover escritorio → COLS=1.
+- **`--hero-img` debe ser URL ABSOLUTA**: una `url()` relativa dentro de
+  una custom property se resuelve contra la hoja de estilos que la
+  consume (`css/styles.css`), no contra el documento → `setupHeroBg()`
+  usa `new URL(HERO_LOCAL, document.baseURI).href`. Si se cambia el hero,
+  mantener esa conversión (bug real: el hero estuvo meses sin fotografía).
+- **Hero**: velos ligeros (la foto se ve; la legibilidad la dan el
+  gradiente inferior y los text-shadow) + animación `heroDrift` (16s,
+  scale 1.07→1.005). En ≤599px un único gradiente vertical.
+- **Bottom nav (<900px)**: la capa "MULTIVERSO 2.0" define
+  `.tabs-bar{top:var(--topbar-h)}` para el sticky de escritorio; su
+  bloque `@media (max-width:899px)` re-aserta `top:auto;bottom:0` — si se
+  elimina esa re-aserción, la nav vuelve a quedarse pegada bajo la
+  cabecera en móvil (bug corregido en esta sesión).
+- **Breakpoints**: `<600px` fila `.item` compacta de 2 filas y
+  `.media-grid` a 3 columnas; `<900px` bottom nav fija + sheet de nota;
+  `≥900px` 2 columnas de lista, estantería `minmax(164px,1fr)`, hovers
+  reales (`@media (hover:hover) and (pointer:fine)`).
+- **Jerarquía de `z-index`** (sin cambios): sheet de nota abierto → 50 ·
+  `.rating-scrim` → 45 · `.tabs-bar` bottom nav fija → 40 · fila con
+  popover abierto → 12 · `.topbar` sticky → 11 · `.tabs-bar` sticky de
+  escritorio → 9.
+- **`body.sheet-open`** y **`isMobileSheet()`** (evaluado en cada
+  apertura, nunca cacheado): igual que en la v2 — `closePopover()` debe
+  retirar siempre clase/scrim.
+- **`css/tokens.css` mantiene alias legacy** (`--surface`, `--blue`,
+  `--brand-purple*`, etc.) — no eliminarlos sin migrar cada selector.
 
 ## Notas de proceso
 
-- Cuando se trabaje en `index.html`, usar **una sola sesión/agente a la
-  vez**. Editar el mismo fichero en paralelo desde dos sesiones produce
-  sobrescrituras silenciosas (ver incidencia registrada en
-  `DOCUMENTACION.md`, sesión 2026-07-23).
-- Tras cualquier edición de `index.html`, verificar con `grep`/lectura que
-  `DATA`, `XMEN_DATA`, `TAB_IDS` y las funciones `build*` siguen presentes
-  y completas antes de dar la tarea por cerrada.
+- Cuando se trabaje en `index.html`/`js/app.js`, usar **una sola
+  sesión/agente a la vez**. Editar el mismo fichero en paralelo desde dos
+  sesiones produce sobrescrituras silenciosas (ver incidencia registrada
+  en `docs/DOCUMENTACION.md`, sesión 2026-07-23).
+- Tras cualquier edición de `js/data.js` o `js/app.js`, verificar con
+  `grep`/lectura que `DATA`, `XMEN_DATA`, `TAB_IDS` y las funciones
+  `build*` siguen presentes y completas, y que `index.html` conserva las
+  tres `<script src>` en orden, antes de dar la tarea por cerrada.
+- QA visual sin navegador interactivo: Edge headless
+  (`msedge --headless=new --screenshot=... file:///...`). Ojo: en Windows
+  el ancho mínimo real de ventana es ~500px — para probar viewports
+  móviles usar una página envoltorio con un `<iframe>` de 390px; y
+  `--virtual-time-budget` ejecuta timers pero no espera imágenes lazy.
