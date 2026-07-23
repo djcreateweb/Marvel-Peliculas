@@ -155,6 +155,15 @@ respetarlas o migrar explícitamente los datos existentes.
   retirar siempre clase/scrim.
 - **`css/tokens.css` mantiene alias legacy** (`--surface`, `--blue`,
   `--brand-purple*`, etc.) — no eliminarlos sin migrar cada selector.
+- **Sincronizar dispositivos** (botón `.sync` en la toolbar del
+  checklist): exporta/importa progreso+notas sin servidor. Formato del
+  código: `MCU1.` + base64 de JSON `{v:1,seen:[títulos],ratings:{}}`
+  (base64 vía `unescape/encodeURIComponent` por los acentos). Importar
+  SUSTITUYE el estado local (con `confirm`) y reconstruye la UI en el
+  orden de contratos. Modal `.sync-modal` con scrim propio (z-index
+  55/56, por encima del sheet de nota) y clase `body.modal-open` para el
+  bloqueo de scroll (independiente de `body.sheet-open`). Ver
+  `setupSync()` en `js/app.js`.
 
 ## Notas de proceso
 

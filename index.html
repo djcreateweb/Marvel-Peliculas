@@ -147,6 +147,12 @@
         </svg>
         Restablecer progreso
       </button>
+      <button class="sync" id="syncBtn" type="button">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M8 3 4 7l4 4M4 7h13M16 21l4-4-4-4M20 17H7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Sincronizar
+      </button>
     </div>
     <div class="hint">
       <svg class="hint__icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -185,10 +191,33 @@
 </main>
 
 <footer>
-  El progreso se guarda automáticamente en este dispositivo.<br>
+  El progreso se guarda automáticamente en este dispositivo. Con «Sincronizar» (pestaña Checklist) puedes llevar tus vistos y notas a otro dispositivo.<br>
   Fechas de 2026 según el calendario oficial vigente, sujetas a cambios.<br>
   Duraciones totales aproximadas (en series, suma de todos los episodios); «≈» indica una estimación para títulos sin metraje confirmado.
 </footer>
+
+<!-- Sincronizar dispositivos: exportar/importar progreso+notas sin servidor (setupSync en js/app.js) -->
+<div class="sync-scrim" id="syncScrim" hidden></div>
+<div class="sync-modal" id="syncModal" role="dialog" aria-modal="true" aria-labelledby="syncTitle" hidden>
+  <div class="sync-modal__head">
+    <h2 id="syncTitle">Sincronizar dispositivos</h2>
+    <button class="sync-modal__close" id="syncClose" type="button" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+  <p class="sync-modal__intro">Tu progreso vive solo en este dispositivo. Copia tu código y pégalo en el tracker del otro dispositivo para llevarte los vistos y las notas.</p>
+  <label class="sync-field">
+    <span>Tu código</span>
+    <textarea id="syncExport" rows="3" readonly spellcheck="false"></textarea>
+  </label>
+  <button class="sync-action" id="syncCopy" type="button">Copiar código</button>
+  <label class="sync-field">
+    <span>Pegar un código</span>
+    <textarea id="syncImport" rows="3" spellcheck="false" placeholder="Pega aquí el código del otro dispositivo (empieza por MCU1.)"></textarea>
+  </label>
+  <button class="sync-action sync-action--primary" id="syncApply" type="button">Importar en este dispositivo</button>
+  <p class="sync-msg" id="syncMsg" role="status"></p>
+</div>
 
 <!-- Orden de carga obligatorio: imágenes → datos → app (ver js/app.js y CLAUDE.md) -->
 <script src="js/images-posters.js"></script>

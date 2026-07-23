@@ -624,6 +624,119 @@ function setupPosterWall(){
   });
 }
 
+/* ============ SINCRONIZAR: exportar/importar progreso sin servidor ============
+   El código es SYNC_PREFIX + base64 de JSON {v:1, seen:[títulos vistos],
+   ratings:{título:nota}}. base64 vía unescape/encodeURIComponent para
+   soportar los acentos de los títulos (btoa solo acepta Latin-1).
+   Importar SUSTITUYE (no fusiona) el progreso local, previa confirmación,
+   y reconstruye la UI respetando el orden de contratos (CLAUDE.md):
+   buildChecklist → buildXmen → buildResumenes → buildPlataforma. */
+const SYNC_PREFIX='MCU1.';
+
+function exportCode(){
+  const seen=Object.keys(state).filter(function(t){ return state[t]; });
+  const payload={v:1,seen:seen,ratings:ratings};
+  return SYNC_PREFIX+btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+}
+
+function parseImportCode(raw){
+  const txt=(raw||'').trim();
+  if(!txt) return {error:'Pega un código primero.'};
+  if(txt.indexOf(SYNC_PREFIX)!==0) return {error:'Esto no parece un código del tracker (debe empezar por '+SYNC_PREFIX+').'};
+  try{
+    const json=decodeURIComponent(escape(atob(txt.slice(SYNC_PREFIX.length))));
+    const data=JSON.parse(json);
+    const ratingsOk = data && typeof data.ratings==='object' && data.ratings!==null && !Array.isArray(data.ratings);
+    if(!data || data.v!==1 || !Array.isArray(data.seen) || !ratingsOk){
+      return {error:'El código está incompleto o dañado.'};
+    }
+    return {data:data};
+  }catch(e){
+    return {error:'No se pudo leer el código. Comprueba que esté copiado entero, sin cortes.'};
+  }
+}
+
+function applyImport(data){
+  state={};
+  data.seen.forEach(function(t){ if(typeof t==='string') state[t]=true; });
+  ratings={};
+  Object.keys(data.ratings).forEach(function(t){
+    const n=Number(data.ratings[t]);
+    if(Number.isFinite(n) && n>=0 && n<=10) ratings[t]=Math.round(n);
+  });
+  save();
+  saveRatings();
+  buildChecklist();
+  buildXmen();
+  buildResumenes();
+  buildPlataforma();
+  refreshAllUI();
+}
+
+function setupSync(){
+  const openBtn=document.getElementById('syncBtn');
+  const modal=document.getElementById('syncModal');
+  const scrim=document.getElementById('syncScrim');
+  if(!openBtn||!modal||!scrim) return;
+  const exportTa=document.getElementById('syncExport');
+  const importTa=document.getElementById('syncImport');
+  const copyBtn=document.getElementById('syncCopy');
+  const applyBtn=document.getElementById('syncApply');
+  const closeBtn=document.getElementById('syncClose');
+  const msgEl=document.getElementById('syncMsg');
+
+  function setMsg(text,ok){
+    msgEl.textContent=text||'';
+    msgEl.classList.toggle('is-ok',!!ok);
+  }
+  function openModal(){
+    exportTa.value=exportCode(); // siempre fresco: refleja el estado actual
+    importTa.value='';
+    setMsg('');
+    modal.hidden=false; scrim.hidden=false;
+    requestAnimationFrame(function(){ modal.classList.add('is-open'); scrim.classList.add('is-open'); });
+    document.body.classList.add('modal-open');
+    exportTa.focus(); exportTa.select();
+  }
+  function closeModal(){
+    modal.classList.remove('is-open'); scrim.classList.remove('is-open');
+    modal.hidden=true; scrim.hidden=true;
+    document.body.classList.remove('modal-open');
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener('click',openModal);
+  closeBtn.addEventListener('click',closeModal);
+  scrim.addEventListener('click',closeModal);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape' && !modal.hidden) closeModal();
+  });
+
+  copyBtn.addEventListener('click',function(){
+    exportTa.focus();
+    exportTa.select();
+    exportTa.setSelectionRange(0, exportTa.value.length);
+    const done=function(){ setMsg('Código copiado. Pégalo en «Sincronizar» del otro dispositivo.',true); };
+    // navigator.clipboard puede no estar disponible en file:// — fallback a execCommand sobre la selección
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(exportTa.value).then(done,function(){ document.execCommand('copy'); done(); });
+    }else{
+      document.execCommand('copy'); done();
+    }
+  });
+
+  applyBtn.addEventListener('click',function(){
+    const res=parseImportCode(importTa.value);
+    if(res.error){ setMsg(res.error,false); return; }
+    if(!confirm('Esto sustituirá el progreso y las notas guardados en este dispositivo por los del código. ¿Continuar?')) return;
+    applyImport(res.data);
+    const seenCount=Object.keys(state).length;
+    const ratingCount=Object.keys(ratings).length;
+    setMsg('Importado: '+seenCount+' títulos vistos y '+ratingCount+' notas.',true);
+    exportTa.value=exportCode();
+  });
+}
+
 /* ============ TABS: routing por hash + teclado (patrón ARIA tabs) ============ */
 const TAB_IDS=['checklist','xmen','resumenes','plataforma'];
 
@@ -703,5 +816,6 @@ refreshAllUI();
 setupHeroBg();
 setupPosterWall();
 setupTabs();
+setupSync();
 
 })();

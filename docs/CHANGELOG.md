@@ -16,6 +16,29 @@ formal); las entradas se agrupan por fecha de sesión de trabajo.
 
 ---
 
+## [2026-07-23] — Parte 5: Sincronizar dispositivos (exportar/importar)
+
+### Añadido
+- Botón «Sincronizar» en la toolbar del checklist (junto a «Restablecer
+  progreso»; comparte estilos de píldora vía selector `.reset,.sync`).
+- Modal `.sync-modal` (scrim propio, z-index 55/56, `body.modal-open`
+  para bloquear scroll): «Tu código» (readonly + Copiar, con fallback a
+  `execCommand` para `file://`) y «Pegar un código» + «Importar en este
+  dispositivo».
+- Formato del código: `MCU1.` + base64 de `{v:1,seen:[títulos],
+  ratings:{}}` — base64 con `unescape/encodeURIComponent` para soportar
+  acentos. Validación con mensajes claros (prefijo, código dañado).
+- Importar SUSTITUYE el estado local previa confirmación, guarda en las
+  keys existentes (`mcu_checklist_v3` / `mcu_ratings_v1`, sin cambios de
+  contrato) y reconstruye la UI en orden: buildChecklist → buildXmen →
+  buildResumenes → buildPlataforma → refreshAllUI.
+- Pie actualizado: menciona «Sincronizar» para llevar el progreso a otro
+  dispositivo.
+- QA: ciclo completo exportar→importar verificado en headless (33 vistos
+  reimportados, acentos intactos) en escritorio y móvil.
+
+---
+
 ## [2026-07-23] — Parte 4: Hero descargado (4 bloques)
 
 El hero pasa de 7 bloques apilados (kicker + eyebrow + titular +
