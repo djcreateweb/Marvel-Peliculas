@@ -92,6 +92,62 @@ respetarlas o migrar explícitamente los datos existentes.
    `overflow:hidden`** — el popover de nota (0–10) se renderiza fuera de
    los límites de la fila y necesita poder desbordar visualmente.
 
+## Rediseño "Multiverso" (2026-07-23 tarde) — hechos durables
+
+Rediseño visual/layout completo aplicado en 8 fases según
+`design/PLAN-REDISENO-PRO.md` (brief de decisiones, histórico — el
+código real de abajo manda si hay discrepancia). Detalle completo de las
+fases y del QA en `DOCUMENTACION.md`. Estos hechos son de referencia
+obligatoria para cualquier cambio futuro de layout/estilos:
+
+- **Breakpoints activos** (mobile-first, base pensada <900px como
+  móvil): `<600px` → fila `.item` compacta de 2 filas (`@media
+  (max-width:599px)`); `600–899px` → 1 columna de lista con fila de 1
+  línea (hereda reglas base, sin overrides); `<900px` (`@media
+  (max-width:899px)`) → bottom navigation fija + topbar reducida;
+  `≥900px` (`@media (min-width:900px)`) → 2 columnas de lista
+  (`grid-template-columns:repeat(auto-fill,minmax(440px,1fr))`), hero
+  panorámico, hovers reales (`@media (hover:hover) and (pointer:fine)`).
+- **Bottom nav = mismos botones `.tab`**: en `<900px` la `.tabs-bar` no es
+  un componente nuevo, es el mismo `<div>` con los 4 `.tab` (mismos
+  `id`/`data-tab`/`aria-*`) reposicionado a `position:fixed;bottom:0`.
+  `setupTabs()` sigue leyendo `data-tab`, no `textContent`: añadir
+  icono SVG + `.tab__label--short`/`.tab__label--full` dentro de cada
+  `.tab` es JS-safe.
+- **Jerarquía de `z-index`** (de mayor a menor, css/styles.css):
+  `.rating__popover--sheet` abierto en móvil → **50** · `.rating-scrim`
+  → **45** · `.tabs-bar` como bottom nav fija (`<900px`) → **40** ·
+  `.item:has(.rating__popover:not([hidden]))` (fila con popover/sheet
+  abierto) → **12** · `.topbar` sticky → **11** · `.tabs-bar` sticky de
+  escritorio (`≥900px`) → **9**. Si se toca cualquiera de estos valores,
+  hay que preservar este orden o el popover/sheet queda oculto tras
+  topbar/tabs-bar/bottom-nav.
+- **`body.sheet-open`**: clase que añade `openPopover()` (rating) al
+  `<body>` cuando el bottom sheet de nota está abierto en móvil —
+  aplica `overflow:hidden` + `overscroll-behavior:contain` para bloquear
+  el scroll de fondo. `closePopover()` debe retirarla siempre (incluida
+  al cerrar por scrim/Escape) o el body queda bloqueado.
+- **`isMobileSheet()`** (`window.matchMedia('(max-width:899px)').matches`)
+  se evalúa **en cada apertura** de `openPopover()`, no se cachea: si el
+  viewport cruza el breakpoint de 899px con el popover cerrado, la
+  siguiente apertura usa el modo correcto (sheet o popover anclado) sin
+  necesidad de recargar la página.
+- **`assets/fondo/*` ya no se usa**: el fondo global es `.bg-fx` de 2
+  capas (`.bg-fx__glows` + `.bg-fx__grain`, sin fotos) definido en
+  `css/background.css`. La única foto de fondo que sigue en uso es
+  `assets/hero-vengadores.jpg` (HERO_LOCAL), y solo dentro del hero.
+- **`css/tokens.css` tiene tokens canónicos + alias legacy**: los
+  nombres nuevos (`--surface-1/2/3`, `--accent`, `--accent-fill`,
+  `--accent-2`, `--accent-deep`, `--fs-hero/h2/title/body/meta/label/
+  stat/micro`, etc.) son la fuente de verdad; los nombres antiguos
+  (`--surface`, `--blue`, `--blue-hover`, `--brand-purple*`,
+  `--brand-blue*`, `--glow-purple`, `--glow-blue`, `--fs-eyebrow`,
+  `--fs-small`, `--fs-xs`, `--tracking-widest`) se conservan como
+  **alias** (`var(--nuevo-token)`) para no dejar ningún selector de
+  `styles.css`/`metal-title.css` sin resolver. No hay que eliminarlos
+  sin migrar antes cada selector que los usa — están marcados en el
+  fichero con el comentario `alias legacy — migrar en fases 1-4`.
+
 ## Notas de proceso
 
 - Cuando se trabaje en `index.html`, usar **una sola sesión/agente a la
