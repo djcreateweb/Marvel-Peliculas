@@ -186,6 +186,8 @@
       </div>
     </div>
 
+    <nav class="phase-jump" id="phaseJump" aria-label="Ir directamente a una fase"></nav>
+
     <div id="checklistList"></div>
     <p class="filter-empty" id="filterEmpty" hidden>Ningún título coincide con la búsqueda o los filtros.</p>
   </section>
@@ -203,6 +205,11 @@
       <h2>Resúmenes en YouTube</h2>
       <p>Toca cualquier póster para abrir su búsqueda de resúmenes en YouTube y ponte al día antes de continuar la maratón. Los títulos que ya has visto llevan la marca verde.</p>
     </div>
+    <div class="shelf-filter" role="group" aria-label="Filtrar títulos por estado">
+      <button class="fchip active" data-mfilter="all" type="button" aria-pressed="true">Todos</button>
+      <button class="fchip" data-mfilter="pend" type="button" aria-pressed="false">Pendientes</button>
+      <button class="fchip" data-mfilter="visto" type="button" aria-pressed="false">Vistos</button>
+    </div>
     <div class="media-grid" id="resumenesList"></div>
   </section>
 
@@ -210,6 +217,11 @@
     <div class="panel-intro">
       <h2>¿Dónde verla?</h2>
       <p>Toca cualquier póster para buscar al instante en qué plataforma está disponible ese título en España.</p>
+    </div>
+    <div class="shelf-filter" role="group" aria-label="Filtrar títulos por estado">
+      <button class="fchip active" data-mfilter="all" type="button" aria-pressed="true">Todos</button>
+      <button class="fchip" data-mfilter="pend" type="button" aria-pressed="false">Pendientes</button>
+      <button class="fchip" data-mfilter="visto" type="button" aria-pressed="false">Vistos</button>
     </div>
     <div class="media-grid" id="plataformaList"></div>
   </section>

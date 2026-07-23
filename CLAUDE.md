@@ -169,6 +169,22 @@ respetarlas o migrar explícitamente los datos existentes.
 - **Nota en las estanterías**: `buildMediaCard` pinta `.media-card__nota`
   («★ n») si hay nota, y `setRating()` llama a `syncMediaRating(t)` para
   crearla/actualizarla/retirarla en vivo vía `mediaRefs`.
+- **Filtro de estado en las estanterías** (`.shelf-filter` en Resúmenes y
+  Plataforma): CSS-driven — el chip fija `data-mfilter` en la
+  `.media-grid` y las reglas ocultan `.media-card` según `.is-done`
+  (mantenida por `updateItemUI`), así el filtro sigue correcto al marcar
+  títulos sin JS adicional.
+- **Salto de fases** (`#phaseJump`, `buildPhaseJump()`): chips-ancla a
+  `#fase-N`; `buildPhase` asigna `sec.id=slugifyPhase(ph.phase)`. Un hash
+  `#fase-N` no está en `TAB_IDS` → `tabNameFromHash()` cae a 'checklist'
+  (comportamiento deseado: activa la pestaña y el navegador desplaza).
+- **Fase completada + marcar todo**: `updatePhaseUI` togglea
+  `.is-complete` en la sección (insignia `.phase-complete` + barra verde)
+  y alterna el texto del botón `.phase-mark` («Marcar todo»/«Quitar
+  todo»), que marca/desmarca la fase entera de una vez (toggle
+  reversible, sin confirm). `phaseRefs` guarda `sec` y `markBtn`.
+- **`.item.pop`**: micro-animación del tick — la añade SOLO `toggleItem`
+  (interacción directa); ni el bootstrap ni «Marcar todo» la disparan.
 - **`.to-top`** (volver arriba): fijo, z-index 39 (bajo la bottom nav 40),
   aparece con `scrollY>700`; en <900px se eleva sobre la bottom nav.
 - **Sincronizar dispositivos** (botón `.sync` en la toolbar del

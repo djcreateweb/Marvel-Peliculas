@@ -388,6 +388,7 @@ function buildItemRow(it){
 function buildPhase(ph){
   const sec=document.createElement('div');
   sec.className='phase';
+  sec.id=slugifyPhase(ph.phase); // ancla del salto rápido (#fase-1…)
 
   const head=document.createElement('div');
   head.className='phase-head';
@@ -407,7 +408,30 @@ function buildPhase(ph){
     phDur.appendChild(document.createTextNode('≈ '+Math.round(totalMin/60)+' h'));
     head.append(phDur);
   }
-  head.append(pctEl,countEl);
+
+  // Insignia "Completada" (visible vía CSS cuando la fase llega al 100%)
+  const doneChip=document.createElement('span');
+  doneChip.className='phase-complete';
+  doneChip.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 12 10 18 20 6"/></svg>Completada';
+  head.append(doneChip);
+
+  // Marcar/quitar la fase entera de una vez (toggle reversible, sin confirm)
+  const markBtn=document.createElement('button');
+  markBtn.type='button';
+  markBtn.className='phase-mark';
+  markBtn.textContent='Marcar todo';
+  markBtn.setAttribute('aria-label','Marcar o quitar todos los títulos de '+ph.phase);
+  markBtn.addEventListener('click',function(){
+    const allSeen=ph.items.every(function(it){ return !!state[it.t]; });
+    ph.items.forEach(function(it){ state[it.t]=!allSeen; });
+    save();
+    ph.items.forEach(function(it){ updateItemUI(it.t); });
+    updatePhaseUI(ph.phase);
+    updateGlobalUI();
+    applyFilters();
+  });
+
+  head.append(pctEl,countEl,markBtn);
 
   const track=document.createElement('div'); track.className='phase-progress-track';
   const fill=document.createElement('div'); fill.className='phase-progress-fill'; fill.style.width='0%';
@@ -417,7 +441,7 @@ function buildPhase(ph){
   ph.items.forEach(it=>grid.appendChild(buildItemRow(it)));
 
   sec.append(head,track,grid);
-  phaseRefs.set(ph.phase,{items:ph.items,totalPh:ph.items.length,pctEl,countEl:countB,fillEl:fill,sec:sec});
+  phaseRefs.set(ph.phase,{items:ph.items,totalPh:ph.items.length,pctEl,countEl:countB,fillEl:fill,sec:sec,markBtn:markBtn});
   return sec;
 }
 
@@ -586,6 +610,9 @@ function updatePhaseUI(phaseName){
   ref.pctEl.textContent=pct+'%';
   ref.countEl.textContent=String(seen);
   ref.fillEl.style.width=pct+'%';
+  const complete = ref.totalPh>0 && seen===ref.totalPh;
+  if(ref.sec) ref.sec.classList.toggle('is-complete',complete);
+  if(ref.markBtn) ref.markBtn.textContent = complete ? 'Quitar todo' : 'Marcar todo';
 }
 
 const RING_CIRCUMFERENCE=125.7;
@@ -638,6 +665,15 @@ function toggleItem(t){
   state[t]=!state[t];
   save();
   updateItemUI(t);
+  const ref=itemRefs.get(t);
+  if(ref){
+    // Micro-pop del tick SOLO en interacción directa (nunca al cargar
+    // ni al usar "Marcar todo", que sería una lluvia de 15 animaciones)
+    ref.row.classList.remove('pop');
+    void ref.row.offsetWidth; // reinicia la animación si se pulsa dos veces seguidas
+    ref.row.classList.add('pop');
+    setTimeout(function(){ ref.row.classList.remove('pop'); },500);
+  }
   updatePhaseUI(titleToPhase.get(t));
   updateGlobalUI();
   applyFilters(); // con el filtro "Pendientes"/"Vistos" activo, la fila cambia de lista al marcarla
@@ -695,6 +731,46 @@ function setupFilters(){
         s.setAttribute('aria-pressed',String(active));
       });
       applyFilters();
+    });
+  });
+}
+
+/* ============ SALTO RÁPIDO DE FASES (checklist) ============ */
+function slugifyPhase(name){
+  return 'fase-'+normalizeText(name).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+}
+
+function buildPhaseJump(){
+  const nav=document.getElementById('phaseJump');
+  if(!nav) return;
+  nav.innerHTML='';
+  DATA.forEach(function(ph){
+    const a=document.createElement('a');
+    a.className='fchip';
+    a.href='#'+slugifyPhase(ph.phase);
+    a.textContent=ph.phase;
+    nav.appendChild(a);
+  });
+}
+
+/* ============ FILTRO DE ESTADO EN LAS ESTANTERÍAS ============
+   Puramente CSS-driven: el chip activo fija data-mfilter en la
+   .media-grid del panel y las reglas ocultan .media-card según
+   .is-done (que updateItemUI mantiene al día). */
+function setupShelfFilters(){
+  document.querySelectorAll('.shelf-filter').forEach(function(group){
+    const panel=group.closest('.tab-panel');
+    const grid=panel?panel.querySelector('.media-grid'):null;
+    if(!grid) return;
+    group.querySelectorAll('.fchip').forEach(function(chip){
+      chip.addEventListener('click',function(){
+        grid.dataset.mfilter=chip.dataset.mfilter;
+        group.querySelectorAll('.fchip').forEach(function(s){
+          const active=s===chip;
+          s.classList.toggle('active',active);
+          s.setAttribute('aria-pressed',String(active));
+        });
+      });
     });
   });
 }
@@ -967,12 +1043,14 @@ buildChecklist();
 buildXmen();
 buildResumenes();
 buildPlataforma();
+buildPhaseJump();
 refreshAllUI();
 setupHeroBg();
 setupPosterWall();
 setupTabs();
 setupSync();
 setupFilters();
+setupShelfFilters();
 setupContinue();
 setupToTop();
 

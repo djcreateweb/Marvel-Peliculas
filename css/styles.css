@@ -1518,3 +1518,57 @@ body.modal-open{overflow:hidden;overscroll-behavior:contain;}
   .fchip.active:hover{color:#fff;}
   .to-top:hover{color:var(--text);border-color:rgba(160,143,255,.55);}
 }
+
+/* ================================================================
+   MEJORAS 2026-07-23 (ronda 2): filtros de estantería · salto de
+   fases · fase completada + marcar todo · pop del tick
+   ================================================================ */
+
+/* ── Filtro de estado en Resúmenes/Plataforma (CSS-driven) ── */
+.shelf-filter{display:flex;gap:5px;flex-wrap:wrap;margin:-8px 0 18px;}
+.media-grid[data-mfilter="pend"] .media-card.is-done{display:none;}
+.media-grid[data-mfilter="visto"] .media-card:not(.is-done){display:none;}
+
+/* ── Salto rápido de fases bajo la barra de filtros ── */
+.phase-jump{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0 0;}
+.phase-jump .fchip{text-decoration:none;}
+
+/* ── Fase completada: insignia + barra en verde ── */
+.phase-complete{
+  display:none;align-items:center;gap:4px;
+  min-height:22px;padding:0 9px;border-radius:var(--r-full);
+  font-family:var(--font-body);font-weight:var(--fw-semibold);
+  font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--done);background:rgb(52 211 153/.12);border:1px solid rgb(52 211 153/.35);
+}
+.phase-complete svg{width:10px;height:10px;stroke:var(--done);stroke-width:3.2;fill:none;flex-shrink:0;}
+.phase.is-complete .phase-complete{display:inline-flex;}
+.phase.is-complete .phase-progress-fill{background:linear-gradient(90deg,#34d399,#60a5fa);box-shadow:0 0 10px rgb(52 211 153/.5);}
+
+/* ── Botón marcar/quitar toda la fase ── */
+.phase-mark{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:26px;padding:0 11px;border-radius:var(--r-full);cursor:pointer;
+  font-family:var(--font-body);font-weight:var(--fw-semibold);
+  font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--text-2);background:rgba(255,255,255,.035);border:1px solid rgba(185,190,239,.18);
+  transition:color var(--dur-fast) var(--ease-smooth),border-color var(--dur-fast) var(--ease-smooth),background var(--dur-fast) var(--ease-smooth);
+}
+.phase-mark:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;}
+.phase-mark:active{transform:scale(.97);}
+
+/* ── Pop del tick al marcar (clase .pop puesta solo por toggleItem) ── */
+.item.pop .check svg{animation:checkPop .4s var(--ease-bounce);}
+@keyframes checkPop{0%{transform:scale(.3);}65%{transform:scale(1.35);}100%{transform:scale(1);}}
+
+@media (max-width:599px){
+  /* Salto de fases: carrusel horizontal de una línea */
+  .phase-jump{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+  .phase-jump::-webkit-scrollbar{display:none;}
+  .phase-jump .fchip{flex:0 0 auto;}
+  .shelf-filter .fchip{flex:1 1 auto;}
+  .phase-mark{min-height:24px;padding:0 9px;font-size:9px;}
+}
+@media (hover:hover) and (pointer:fine){
+  .phase-mark:hover{color:var(--text);border-color:rgba(160,143,255,.45);background:rgba(255,255,255,.07);}
+}

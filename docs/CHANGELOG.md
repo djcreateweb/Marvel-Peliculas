@@ -16,6 +16,27 @@ formal); las entradas se agrupan por fecha de sesión de trabajo.
 
 ---
 
+## [2026-07-23] — Parte 7: Filtros de estantería, salto de fases y marcar-todo
+
+### Añadido
+- **Filtro Todos/Pendientes/Vistos en Resúmenes y Plataforma**
+  (`.shelf-filter`): CSS-driven vía `data-mfilter` en la `.media-grid` +
+  la clase `.is-done` que ya mantiene `updateItemUI` — se actualiza solo
+  al marcar títulos.
+- **Salto rápido de fases** en el checklist (`#phaseJump`): chips-ancla
+  «Fase 1…6» hacia `#fase-N` (ids generados con `slugifyPhase`);
+  carrusel horizontal en móvil.
+- **Insignia «✓ Completada»** y barra de progreso en verde cuando una
+  fase llega al 100% (`.phase.is-complete`, toggled en `updatePhaseUI`).
+- **Botón «Marcar todo / Quitar todo» por fase** (`.phase-mark`): marca o
+  desmarca la fase entera de una vez (toggle reversible); actualiza
+  progreso, filtros y stats en el momento.
+- **Micro-animación del tick** al marcar un título (`.item.pop`,
+  `checkPop` con `--ease-bounce`): solo en interacción directa — ni al
+  cargar ni con «Marcar todo».
+
+---
+
 ## [2026-07-23] — Parte 6: Filtros, tiempo de maratón y mejoras de uso
 
 ### Añadido
