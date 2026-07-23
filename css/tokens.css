@@ -1,0 +1,198 @@
+/* ================================================================
+   DESIGN SYSTEM — MCU Tracker · "ENDGAME" (v2)
+   Paleta derivada de la portada de Vengadores: Endgame
+   Lila/Púrpura + Azul eléctrico sobre base "espacio profundo",
+   acento metálico plata/acero reservado a títulos grandes.
+
+   Sustituye por completo el bloque :root rojo/dorado de
+   DISENO-SPEC.md (paleta "Marvel clásica"). Ver tabla de
+   migración de tokens en design/DISENO-SISTEMA-ENDGAME.md.
+
+   Este fichero NO toca index.html. Es system-ready: se puede
+   pegar tal cual dentro de un <style> o enlazar como
+   <link rel="stylesheet" href="css/tokens.css">
+   ANTES de css/metal-title.css y de cualquier otro CSS del sitio.
+   ================================================================ */
+
+/* ── Google Fonts ──
+   Anton   → títulos hero / efecto metálico (trazo grueso, ideal
+             lienzo para degradado + bisel; ver metal-title.css)
+   Oswald  → display secundario: h2 de fase, tabs, marca, cifras
+             de UI (condensada, cinematográfica, más contenida que Anton)
+   Inter   → cuerpo de texto (sin cambios respecto al sistema anterior)
+
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+*/
+
+:root{
+  /* ================================================
+     COLOR — Base / superficies ("espacio profundo")
+     Navy-violeta oscuro y neutro, sin saturación excesiva,
+     para que lila/azul/acero destaquen sobre él.
+     ================================================ */
+  --bg:            #0a0a13;
+  --surface:       #141420;
+  --surface-2:     #1b1b2c;
+  --surface-3:     #232338;
+  --border:        #2c2c46;
+  --border-hover:  #38385a;
+  --text:          #f2f1fa;   /* blanco con velo lavanda — 17.6:1 sobre --bg */
+  --text-2:        #b7b2d4;   /* lavanda-gris — 9.7:1 sobre --bg */
+  --muted:         #7a76a0;   /* gris-violeta — 4.6:1 sobre --bg (AA en texto normal) */
+
+  /* ================================================
+     COLOR — Semántica de tipo (reinterpretada en la
+     nueva paleta; se mantiene el verde "visto")
+     ================================================ */
+  --film:          #3b82f6;   /* azul eléctrico Endgame — 5.4:1 sobre --bg */
+  --serie:         #a855f7;   /* lila/púrpura Endgame — 5.0:1 sobre --bg */
+  --especial:      #c17f3e;   /* bronce/cobre (metal cálido, NO amarillo) — 6.0:1 sobre --bg */
+  --done:          #10b981;   /* verde "visto", sin cambios — 7.8:1 sobre --bg */
+
+  /* ================================================
+     COLOR — Utilidad UI (enlaces, hovers de texto)
+     ================================================ */
+  --blue:          #3b82f6;
+  --blue-hover:    #60a5ff;
+
+  /* ================================================
+     COLOR — Acento de marca ENDGAME (reemplaza --marvel-*)
+     Lila/púrpura + azul eléctrico, el "hilo conductor"
+     del progreso (barra global, barra de fase, tab activo,
+     anillo del hero) — igual que antes usaba rojo→dorado.
+     ================================================ */
+  --brand-purple:        #8b5cf6;  /* violeta vívido — 4.7:1 sobre --bg, uso en texto grande/bordes */
+  --brand-purple-bright: #b794ff;  /* violeta claro — 8.2:1, texto pequeño / hover */
+  --brand-purple-deep:   #4c2889;  /* violeta profundo — viñetas, glows, fondos degradados */
+
+  --brand-blue:          #3b82f6;  /* azul eléctrico — 5.4:1 sobre --bg */
+  --brand-blue-bright:   #60a5ff;  /* azul claro — 7.9:1, focus-ring / hover */
+  --brand-blue-deep:     #1b3a8a;  /* azul profundo — viñetas, glows, fondos degradados */
+
+  --brand-gradient:      linear-gradient(90deg,  var(--brand-purple) 0%, var(--brand-blue) 100%);
+  --brand-gradient-diag: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-blue) 100%);
+
+  /* ================================================
+     COLOR — Metálico / acero (plata pulida — logo Endgame)
+     Escala de grises fríos con leve tinte azul-violeta,
+     de sombra profunda a brillo casi blanco. Uso exclusivo
+     de .metal-title (ver css/metal-title.css).
+     ================================================ */
+  --steel-1: #3a3d47;   /* sombra profunda / bisel inferior */
+  --steel-2: #6b6f7c;   /* acero medio-oscuro */
+  --steel-3: #9ba0ae;   /* acero medio — también color sólido de fallback */
+  --steel-4: #cdd1db;   /* acero claro */
+  --steel-5: #f5f6fa;   /* brillo casi blanco */
+  --steel-sheen: #c9d4ff; /* reflejo frío teñido de azul-violeta (ambiente Endgame) */
+
+  /* ================================================
+     Marcas externas controladas (sin cambios de valor —
+     son colores de marca reales de terceros, fuera del
+     rediseño; siguen siendo AA sobre la nueva base oscura)
+     ================================================ */
+  --youtube-red:       #d0201a;
+  --youtube-red-text:  #ff5a5f;
+  --disney-blue:       #113ccf;
+  --disney-blue-text:  #5b8def;
+
+  /* ================================================
+     Tintes de tipo para placeholders de póster
+     ================================================ */
+  --film-tint:     rgba(59,130,246,.55);
+  --serie-tint:    rgba(168,85,247,.5);
+  --especial-tint: rgba(193,127,62,.5);
+
+  /* ================================================
+     TIPOGRAFÍA
+     ================================================ */
+  --font-hero:    'Anton', sans-serif;              /* SOLO hero / .metal-title grande */
+  --font-display: 'Oswald', sans-serif;             /* h2, tabs, marca, cifras UI */
+  --font-body:    'Inter', system-ui, sans-serif;   /* cuerpo, UI — sin cambios */
+
+  /* Pesos */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-black:    800;  /* uso conceptual: Anton ya es "black" visualmente con weight:400 */
+
+  /* Tracking (letter-spacing) */
+  --tracking-tight:  -.02em;   /* hero-title grande */
+  --tracking-normal: 0;
+  --tracking-wide:   .05em;    /* tabs, botones */
+  --tracking-widest: .18em;    /* eyebrow, micro-labels uppercase */
+
+  /* Escala tipográfica fluida (misma nomenclatura y valores
+     que el sistema anterior, para no romper el layout) */
+  --fs-eyebrow:   .72rem;
+  --fs-hero:      clamp(1.75rem,5.5vw,2.75rem);
+  --fs-hero-sub:  clamp(.875rem,2vw,1rem);
+  --fs-h2:        1.125rem;
+  --fs-body:      .875rem;
+  --fs-small:     .75rem;
+  --fs-xs:        .6875rem;
+
+  /* ================================================
+     ESPACIADO (sin cambios respecto al sistema anterior)
+     ================================================ */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px;
+  --sp-8:32px; --sp-10:40px; --sp-12:48px; --sp-16:64px; --sp-20:80px; --sp-24:96px;
+
+  /* ================================================
+     RADIOS (sin cambios)
+     ================================================ */
+  --r-xs:6px; --r-sm:8px; --r-md:9px; --r-lg:11px; --r-xl:16px; --r-full:9999px;
+
+  /* ================================================
+     SOMBRAS / GLOW (rgba negro con velo violeta + glow
+     lila/azul reemplazando --glow-red / --glow-gold)
+     ================================================ */
+  --shadow-sm: 0 1px 3px rgba(4,3,10,.4);
+  --shadow-md: 0 6px 16px -4px rgba(4,3,10,.5);
+  --shadow-lg: 0 16px 40px -12px rgba(4,3,10,.6);
+  --glow-purple: 0 0 20px rgba(139,92,246,.4);
+  --glow-blue:   0 0 20px rgba(59,130,246,.35);
+
+  /* ================================================
+     MOVIMIENTO (sin cambios)
+     ================================================ */
+  --ease-smooth: cubic-bezier(.4,0,.2,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+  --dur-fast:120ms; --dur-normal:200ms; --dur-slow:400ms; --dur-slower:600ms;
+
+  /* ================================================
+     LAYOUT (sin cambios)
+     ================================================ */
+  --container-max: 900px;
+  --topbar-h: 56px;
+  --poster-w: 54px;
+  --poster-w-sm: 46px;
+  --poster-ratio: 2/3;
+
+  /* ================================================
+     SUPERFICIES DE CRISTAL (glass) — mismo mecanismo,
+     rgba recalculado sobre el nuevo --bg
+     ================================================ */
+  --glass-bg:            rgba(10,10,19,.80);
+  --glass-bg-strong:     rgba(10,10,19,.88);
+  --glass-border:        rgba(255,255,255,.08);
+  --glass-border-strong: rgba(255,255,255,.16);
+  --glass-blur:          blur(16px) saturate(150%);
+  --glass-highlight:     inset 0 1px 0 rgba(255,255,255,.06);
+
+  /* Foco de teclado — se recolorea al acento eléctrico azul
+     (7.9:1 sobre --bg, cumple holgadamente 3:1 de componentes UI) */
+  --focus-ring-color: var(--brand-blue-bright);
+}
+
+/* ============ FOCUS-VISIBLE GLOBAL ============
+   Copiar tal cual junto al resto del CSS del sitio: recolorea
+   el foco de teclado del sistema anterior (--marvel-red-bright)
+   al nuevo acento eléctrico. */
+:focus-visible{
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
