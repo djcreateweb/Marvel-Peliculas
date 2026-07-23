@@ -1151,14 +1151,19 @@ body{
 }
 /* Fondo Endgame protagonista (rediseño 2026-07-23): velos mucho más
    ligeros — la fotografía se ve de verdad; la legibilidad del texto la
-   garantizan el gradiente inferior + los text-shadow del contenido. */
+   garantizan el gradiente inferior + los text-shadow del contenido.
+   Composición: la imagen va con zoom y ANCLADA A LA IZQUIERDA
+   (background-position X=0) — al ser más ancha que el contenedor, el
+   reparto (centro de la foto) cae en la mitad DERECHA del viewport y no
+   choca con el titular, que vive a la izquierda sobre la zona oscura de
+   Thanos. max(100%,240vh) garantiza cobertura también en ultrapanorámicos. */
 .hero-cinematic__media{
   background-image:
-    linear-gradient(90deg,rgba(6,8,18,.86) 0%,rgba(7,9,20,.46) 30%,rgba(8,10,23,.05) 62%,rgba(8,10,23,.28) 100%),
+    linear-gradient(90deg,rgba(6,8,18,.95) 0%,rgba(7,9,20,.72) 34%,rgba(8,10,23,.12) 62%,rgba(8,10,23,.22) 100%),
     linear-gradient(0deg,#0b0d1b 2%,rgba(11,13,27,.6) 20%,rgba(11,13,27,0) 56%),
     var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));
-  background-position:center,center,center 26%;
-  background-size:cover;
+  background-position:center,center,0% 30%;
+  background-size:auto,auto,max(100%,240vh) auto;
   filter:saturate(1.05) contrast(1.03);
   animation:heroDrift 16s var(--ease-smooth) both;
 }
@@ -1181,7 +1186,10 @@ body{
 .hero-kicker i{width:28px;height:1px;background:linear-gradient(90deg,#8c76ff,#5ca7ff);box-shadow:0 0 10px rgba(120,117,255,.7);}
 .hero-eyebrow{margin-bottom:8px;color:#6faeff;font-size:11px;letter-spacing:.17em;}
 .hero-title{max-width:820px;font-size:clamp(3.25rem,7.2vw,6.8rem);line-height:.94;letter-spacing:-.02em;}
-.hero-title .metal-title,.hero-title .metal-title-accent{display:inline;}
+/* Dos líneas SIEMPRE ("Guía de visionado" / "Hasta Doomsday"): en inline,
+   según el ancho, "HASTA" saltaba a la primera línea y el titular invadía
+   los rostros del reparto en la mitad derecha. */
+.hero-title .metal-title,.hero-title .metal-title-accent{display:block;}
 .hero-subtitle{max-width:600px;margin-top:22px;font-size:clamp(1rem,1.25vw,1.12rem);line-height:1.7;color:#d7d9ea;}
 .hero-details{display:flex;flex-wrap:wrap;gap:9px;margin-top:23px;}
 .hero-details span{padding:8px 11px;border:1px solid rgba(185,191,241,.2);border-radius:999px;background:rgba(10,12,26,.42);backdrop-filter:blur(10px);font-size:11px;color:#b8bbd4;letter-spacing:.03em;}
@@ -1257,7 +1265,9 @@ footer{margin-top:74px;padding-top:23px;color:#858ba8;border-color:rgba(184,190,
 
 @media (max-width:899px){
   .hero-cinematic{min-height:clamp(560px,76vh,700px);}
-  .hero-cinematic__media{background-position:center,center,58% 28%;}
+  /* Tablet: zoom moderado con la misma ancla izquierda (el reparto se
+     mantiene a la derecha del texto sin recortarse fuera de cuadro) */
+  .hero-cinematic__media{background-position:center,center,0% 28%;background-size:auto,auto,auto 118%;}
   .hero-cinematic__content{padding-top:88px;padding-bottom:55px;}
   .hero-title{font-size:clamp(3rem,11vw,5rem);}
   .hero-subtitle{max-width:52ch;}
@@ -1279,8 +1289,9 @@ footer{margin-top:74px;padding-top:23px;color:#858ba8;border-color:rgba(184,190,
   .mini-bar{width:68px;height:5px;}
   .hero-cinematic{min-height:620px;}
   /* Móvil: un solo velo vertical — imagen limpia arriba, oscurecido
-     progresivo abajo donde vive el texto */
-  .hero-cinematic__media{background-image:linear-gradient(180deg,rgba(6,8,18,.5) 0%,rgba(7,9,20,.12) 30%,rgba(11,13,27,.8) 76%,#0b0d1b 100%),var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));background-position:center,62% 24%;}
+     progresivo abajo donde vive el texto. background-size explícito:
+     aquí solo hay 2 capas y no debe heredar el zoom de escritorio. */
+  .hero-cinematic__media{background-image:linear-gradient(180deg,rgba(6,8,18,.5) 0%,rgba(7,9,20,.12) 30%,rgba(11,13,27,.8) 76%,#0b0d1b 100%),var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));background-position:center,62% 24%;background-size:auto,cover;}
   .hero-cinematic__content{padding:70px 16px 42px;}
   .hero-kicker{gap:7px;font-size:8px;letter-spacing:.12em;}
   .hero-kicker i{width:15px;}
