@@ -16,6 +16,21 @@ formal); las entradas se agrupan por fecha de sesión de trabajo.
 
 ---
 
+## [2026-07-23] — Parte 4: Hero descargado (4 bloques)
+
+El hero pasa de 7 bloques apilados (kicker + eyebrow + titular +
+subtítulo + chips + botones + badge) a 4: eyebrow único («Universo
+Marvel · Orden de estreno · 2008—2026»), titular algo más contenido
+(clamp 6rem máx.), subtítulo de una frase que absorbe el dato de los 81
+títulos, y una sola fila de acciones con el anillo de progreso
+integrado (en móvil, botones a ancho completo y anillo centrado).
+`.hero-kicker` y `.hero-details` eliminados de markup y CSS; los IDs
+`heroPct`/`heroCount`/`heroRingProgress` no cambian (JS intacto). El
+titular ya no invade los rostros en ningún ancho (composición
+texto-izquierda/reparto-derecha también en <600px, ver Parte 3).
+
+---
+
 ## [2026-07-23] — Parte 3: Estantería de pósters, nota v3, hero Endgame y reestructura
 
 Rediseño de las pestañas Resúmenes/Plataforma y del selector de nota,
