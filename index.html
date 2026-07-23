@@ -2,13 +2,29 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Guía interactiva del Universo Cinematográfico Marvel (MCU): marca lo que ya has visto por fases, consulta resúmenes en YouTube y descubre en qué plataforma está cada título en España.">
-<title>MCU Tracker · Guía de visionado</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%238b5cf6'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 1.4 L28.4 8.2 V21.8 L16 30.6 L3.6 21.8 V8.2 Z' fill='%230a0a13' stroke='url(%23g)' stroke-width='1.8'/%3E%3Cpath d='M16 8.2 L18.3 14.1 L24.2 16 L18.3 17.9 L16 23.8 L13.7 17.9 L7.8 16 L13.7 14.1 Z' fill='url(%23g)'/%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MCU Tracker · Checklist del MCU por fases + X-Men</title>
+<meta name="description" content="Marca qué películas y series del MCU por fases y de la saga X-Men ya has visto, con duración de cada título y dónde verlo en España.">
+<meta name="theme-color" content="#0b0b14">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%238b5cf6'/%3E%3Cstop offset='100%25' stop-color='%2360a5fa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 1.4 L28.4 8.2 V21.8 L16 30.6 L3.6 21.8 V8.2 Z' fill='%230b0b14' stroke='url(%23g)' stroke-width='1.8'/%3E%3Cpath d='M16 8.2 L18.3 14.1 L24.2 16 L18.3 17.9 L16 23.8 L13.7 17.9 L7.8 16 L13.7 14.1 Z' fill='url(%23g)'/%3E%3C/svg%3E">
+
+<!-- Open Graph: og:image usa ruta relativa porque esta página no tiene dominio propio fijo (repo/local); hacerla absoluta ("https://tu-dominio/assets/hero-vengadores.jpg") al publicar. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="MCU Tracker · Checklist del MCU por fases + X-Men">
+<meta property="og:description" content="Marca qué películas y series del MCU por fases y de la saga X-Men ya has visto, con duración de cada título y dónde verlo en España.">
+<meta property="og:image" content="assets/hero-vengadores.jpg">
+<meta property="og:locale" content="es_ES">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MCU Tracker · Checklist del MCU por fases + X-Men">
+<meta name="twitter:description" content="Marca qué películas y series del MCU por fases y de la saga X-Men ya has visto, con duración de cada título y dónde verlo en España.">
+<meta name="twitter:image" content="assets/hero-vengadores.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- LCP: imagen del hero pintada por JS como --hero-img (setupHeroBg), fetchpriority en <img> no aplicaría — se precarga aquí (design/PLAN-REDISENO-PRO.md §9) -->
+<link rel="preload" as="image" href="assets/hero-vengadores.jpg" fetchpriority="high">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/metal-title.css">
 <link rel="stylesheet" href="css/styles.css">
@@ -17,13 +33,8 @@
 <body>
 
 <div class="bg-fx" aria-hidden="true">
-  <div class="bg-fx__base"></div>
-  <div class="bg-fx__base-cool"></div>
-  <div class="bg-fx__skyline"></div>
-  <div class="bg-fx__tint"></div>
-  <div class="bg-fx__bolt"></div>
-  <div class="bg-fx__mark"></div>
-  <div class="bg-fx__vignette"></div>
+  <div class="bg-fx__glows"></div>
+  <div class="bg-fx__grain"></div>
 </div>
 
 <div class="topbar">
@@ -34,7 +45,7 @@
           <defs>
             <linearGradient id="brandEmblemGrad" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stop-color="#8b5cf6"/>
-              <stop offset="100%" stop-color="#3b82f6"/>
+              <stop offset="100%" stop-color="#60a5fa"/>
             </linearGradient>
           </defs>
           <path d="M16 1.4 L28.4 8.2 V21.8 L16 30.6 L3.6 21.8 V8.2 Z"
@@ -82,13 +93,29 @@
 
 <div class="tabs-bar">
   <div class="tabs-inner wrap" role="tablist" aria-label="Secciones">
-    <button class="tab active" role="tab" aria-selected="true" aria-controls="panel-checklist" id="tab-checklist" data-tab="checklist" tabindex="0">Checklist Marvel</button>
-    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-xmen" id="tab-xmen" data-tab="xmen" tabindex="-1">Checklist X-Men</button>
-    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-resumenes" id="tab-resumenes" data-tab="resumenes" tabindex="-1">Resúmenes</button>
-    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-plataforma" id="tab-plataforma" data-tab="plataforma" tabindex="-1">Plataforma</button>
+    <button class="tab active" role="tab" aria-selected="true" aria-controls="panel-checklist" id="tab-checklist" data-tab="checklist" tabindex="0">
+      <svg class="tab__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="8 12.4 10.8 15.2 16 9.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="tab__label tab__label--full">Checklist Marvel</span><span class="tab__label tab__label--short">Marvel</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-xmen" id="tab-xmen" data-tab="xmen" tabindex="-1">
+      <svg class="tab__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.2 8.8 14.8 15.2M14.8 8.8 9.2 15.2" stroke-linecap="round"/></svg>
+      <span class="tab__label tab__label--full">Checklist X-Men</span><span class="tab__label tab__label--short">X-Men</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-resumenes" id="tab-resumenes" data-tab="resumenes" tabindex="-1">
+      <svg class="tab__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10.3 8.7 15.6 12 10.3 15.3Z" stroke-linejoin="round"/></svg>
+      <span class="tab__label tab__label--full">Resúmenes</span><span class="tab__label tab__label--short">Resúmenes</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" aria-controls="panel-plataforma" id="tab-plataforma" data-tab="plataforma" tabindex="-1">
+      <svg class="tab__icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.4" cy="10.4" r="6.4"/><path d="m19.4 19.4-4.2-4.2" stroke-linecap="round"/></svg>
+      <span class="tab__label tab__label--full">Plataforma</span><span class="tab__label tab__label--short">Plataforma</span>
+    </button>
     <!-- HUECO EXTENSIBLE: para añadir otra pestaña, duplicar el patrón de arriba
-         (botón .tab + panel .tab-panel) y añadir su id a TAB_IDS en el script.
-         No requiere cambios de CSS ni de layout; .tabs-inner ya soporta overflow-x. -->
+         (icono .tab__icon + las dos variantes de etiqueta .tab__label +
+         botón .tab + panel .tab-panel) y añadir su id a TAB_IDS en el
+         script. En móvil (<900px) la bottom nav es un grid de 4 columnas
+         fijas (css/styles.css @media max-width:899px) — una 5ª pestaña
+         requeriría ajustar grid-template-columns ahí. En escritorio
+         .tabs-inner sigue soportando overflow-x. -->
   </div>
 </div>
 
@@ -341,6 +368,7 @@ function buildPosterEl(it){
     img.src=url;
     img.alt=''; // decorativo: el título ya está en texto junto al póster
     img.loading='lazy';
+    img.decoding='async';
     img.onerror=function(){ this.remove(); }; // si falla, queda visible el tinte de tipo de fondo
     poster.appendChild(img);
   }
@@ -374,17 +402,48 @@ function setActiveOption(ctx,idx){
   ctx.popoverEl.setAttribute('aria-activedescendant', ctx.optionEls[idx].id);
 }
 
+/* ---- Modo "bottom sheet" en móvil (<900px) — design/PLAN-REDISENO-PRO.md
+   §6, §7, §9 punto 9, §10 fila "5". Se evalúa EN CADA apertura (nunca se
+   cachea) para que un cambio de orientación/ventana entre dos aperturas
+   se respete siempre. ---- */
+const isMobileSheet = () => window.matchMedia('(max-width:899px)').matches;
+
+let ratingScrimEl = null; // único <div class="rating-scrim"> reutilizado, creado bajo demanda en <body>
+function getRatingScrim(){
+  if(!ratingScrimEl){
+    ratingScrimEl = document.createElement('div');
+    ratingScrimEl.className = 'rating-scrim';
+    ratingScrimEl.hidden = true;
+    ratingScrimEl.setAttribute('aria-hidden','true');
+    document.body.appendChild(ratingScrimEl);
+  }
+  return ratingScrimEl;
+}
+
 function openPopover(ctx){
   if(activeRatingCtx && activeRatingCtx !== ctx) closePopover(activeRatingCtx,{restoreFocus:false});
 
+  const sheetMode = isMobileSheet(); // evaluado aquí, en cada apertura (§10 Fase 5)
   ctx.popoverEl.classList.remove('rating__popover--up'); // reset antes de medir
+  ctx.popoverEl.classList.toggle('rating__popover--sheet', sheetMode);
   ctx.popoverEl.hidden = false;
 
-  const trigRect = ctx.triggerEl.getBoundingClientRect();
-  const popRect  = ctx.popoverEl.getBoundingClientRect();
-  const spaceBelow = window.innerHeight - trigRect.bottom;
-  if(spaceBelow < popRect.height + 12){
-    ctx.popoverEl.classList.add('rating__popover--up'); // no cabe debajo → abre hacia arriba
+  if(sheetMode){
+    // <900px: bottom sheet — SIN medición/reposición up-down; scrim propio
+    // + bloqueo de scroll del body (§6, §7, §9 punto 9).
+    const scrim = getRatingScrim();
+    scrim.hidden = false;
+    scrim.onclick = function(){ closePopover(ctx,{restoreFocus:false}); };
+    requestAnimationFrame(function(){ scrim.classList.add('is-open'); });
+    document.body.classList.add('sheet-open');
+  } else {
+    // ≥900px: comportamiento actual EXACTO, sin cambios (medición up/down).
+    const trigRect = ctx.triggerEl.getBoundingClientRect();
+    const popRect  = ctx.popoverEl.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - trigRect.bottom;
+    if(spaceBelow < popRect.height + 12){
+      ctx.popoverEl.classList.add('rating__popover--up'); // no cabe debajo → abre hacia arriba
+    }
   }
 
   ctx.triggerEl.setAttribute('aria-expanded','true');
@@ -398,12 +457,25 @@ function openPopover(ctx){
 }
 
 function closePopover(ctx, opts){
+  if(ctx.popoverEl.hidden) return; // ya cerrado: evita doble cierre (scrim + onOutside, §10 Fase 5)
   const restoreFocus = opts && ('restoreFocus' in opts) ? opts.restoreFocus : true;
   ctx.popoverEl.classList.remove('is-open');
   ctx.popoverEl.hidden = true;
+  ctx.popoverEl.classList.remove('rating__popover--sheet');
   ctx.triggerEl.setAttribute('aria-expanded','false');
   if(ctx.onOutside){ document.removeEventListener('pointerdown', ctx.onOutside); ctx.onOutside = null; }
   if(activeRatingCtx === ctx) activeRatingCtx = null;
+
+  // Limpieza del sheet SIEMPRE que exista (scrim + bloqueo de scroll),
+  // sin depender del ancho actual: si el viewport cruzó el breakpoint
+  // con el sheet abierto, igual queda todo recogido (§10 Fase 5).
+  if(ratingScrimEl){
+    ratingScrimEl.classList.remove('is-open');
+    ratingScrimEl.hidden = true;
+    ratingScrimEl.onclick = null;
+  }
+  document.body.classList.remove('sheet-open');
+
   if(restoreFocus) ctx.triggerEl.focus();
 }
 
@@ -452,7 +524,13 @@ function wireRatingEvents(ctx){
       case 'Enter':
       case ' ':          e.preventDefault(); commitOption(ctx, ctx.activeIndex); break;
       case 'Escape':     e.preventDefault(); closePopover(ctx,{restoreFocus:true}); break;
-      case 'Tab':        closePopover(ctx,{restoreFocus:false}); break; // el tab sigue su curso normal
+      case 'Tab':
+        if(ctx.popoverEl.classList.contains('rating__popover--sheet')){
+          e.preventDefault(); // modo sheet: atrapa el foco dentro — no hay más focables que el propio popover (§9 punto 9)
+        } else {
+          closePopover(ctx,{restoreFocus:false}); // escritorio: comportamiento actual intacto, el tab sigue su curso normal
+        }
+        break;
     }
   });
 }
@@ -564,7 +642,7 @@ function buildItemRow(it){
   const toggle=()=>toggleItem(it.t);
   check.addEventListener('click',(e)=>{ e.stopPropagation(); toggle(); });
   check.addEventListener('keydown',(e)=>{ if(e.key===' '||e.key==='Enter'){ e.preventDefault(); toggle(); } });
-  meta.addEventListener('click',()=>window.open(googleUrl(it),'_blank'));
+  meta.addEventListener('click',()=>window.open(googleUrl(it),'_blank','noopener'));
 
   itemRefs.set(it.t,{row,check});
   return row;
