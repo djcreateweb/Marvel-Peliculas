@@ -8,22 +8,22 @@
 <meta name="theme-color" content="#0b0b14">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%238b5cf6'/%3E%3Cstop offset='100%25' stop-color='%2360a5fa'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 1.4 L28.4 8.2 V21.8 L16 30.6 L3.6 21.8 V8.2 Z' fill='%230b0b14' stroke='url(%23g)' stroke-width='1.8'/%3E%3Cpath d='M16 8.2 L18.3 14.1 L24.2 16 L18.3 17.9 L16 23.8 L13.7 17.9 L7.8 16 L13.7 14.1 Z' fill='url(%23g)'/%3E%3C/svg%3E">
 
-<!-- Open Graph: og:image usa ruta relativa porque esta página no tiene dominio propio fijo (repo/local); hacerla absoluta ("https://tu-dominio/assets/hero-vengadores.jpg") al publicar. -->
+<!-- Open Graph: og:image usa ruta relativa porque esta página no tiene dominio propio fijo (repo/local); hacerla absoluta al publicar. -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="MCU Tracker · Checklist del MCU por fases + X-Men">
 <meta property="og:description" content="Marca qué películas y series del MCU por fases y de la saga X-Men ya has visto, con duración de cada título y dónde verlo en España.">
-<meta property="og:image" content="assets/hero-vengadores.jpg">
+<meta property="og:image" content="assets/fondo/endgame-backdrop.jpg">
 <meta property="og:locale" content="es_ES">
 
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MCU Tracker · Checklist del MCU por fases + X-Men">
 <meta name="twitter:description" content="Marca qué películas y series del MCU por fases y de la saga X-Men ya has visto, con duración de cada título y dónde verlo en España.">
-<meta name="twitter:image" content="assets/hero-vengadores.jpg">
+<meta name="twitter:image" content="assets/fondo/endgame-backdrop.jpg">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- LCP: imagen del hero pintada por JS como --hero-img (setupHeroBg), fetchpriority en <img> no aplicaría — se precarga aquí (design/PLAN-REDISENO-PRO.md §9) -->
-<link rel="preload" as="image" href="assets/hero-vengadores.jpg" fetchpriority="high">
+<link rel="preload" as="image" href="assets/fondo/endgame-backdrop.jpg" fetchpriority="high">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/metal-title.css">
@@ -33,9 +33,11 @@
 <body>
 
 <div class="bg-fx" aria-hidden="true">
+  <div class="bg-fx__photo"></div>
   <div class="bg-fx__glows"></div>
   <div class="bg-fx__grain"></div>
 </div>
+<div class="poster-wall" id="posterWall" aria-hidden="true"></div>
 
 <div class="topbar">
   <div class="topbar-inner">
@@ -66,9 +68,17 @@
 <section class="hero-cinematic">
   <div class="hero-cinematic__media" id="heroMedia"></div>
   <div class="hero-cinematic__content wrap">
+    <div class="hero-kicker"><span>Marvel Studios</span><i aria-hidden="true"></i><span>Orden de estreno · Fases 1—6</span></div>
     <p class="hero-eyebrow">Universo Cinematográfico Marvel</p>
     <h1 class="hero-title"><span class="metal-title">Guía de visionado</span> <span class="metal-title-accent">hasta Doomsday</span></h1>
-    <p class="hero-subtitle">Las tres sagas del Universo Cinematográfico de Marvel en orden de estreno. Marca lo visto y abre cualquier título en Google con un toque.</p>
+    <p class="hero-subtitle">Tu línea temporal del multiverso, reunida en un solo lugar. Sigue el orden de estreno, marca cada título y retoma la maratón cuando quieras.</p>
+    <div class="hero-details" aria-label="Resumen del tracker">
+      <span><b>81</b> títulos</span><span><b>3</b> sagas</span><span><b>2008—2026</b> cronología</span>
+    </div>
+    <div class="hero-actions">
+      <a class="hero-action hero-action--primary" href="#checklist"><span>Empezar recorrido</span><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+      <a class="hero-action hero-action--ghost" href="#resumenes">Ver resúmenes</a>
+    </div>
     <div class="hero-badge">
       <svg class="hero-badge__ring" viewBox="0 0 48 48" width="46" height="46" aria-hidden="true">
         <circle cx="24" cy="24" r="20" stroke="var(--border)" stroke-width="4" fill="none"/>
@@ -852,6 +862,34 @@ function setupHeroBg(){
   if(media && HERO_LOCAL){ media.style.setProperty('--hero-img','url("'+HERO_LOCAL+'")'); }
 }
 
+/* Pared ambiental con posters locales: decorativa, no altera el contenido
+   ni las referencias de títulos que usa el tracker. */
+function setupPosterWall(){
+  const wall=document.getElementById('posterWall');
+  if(!wall || typeof POSTERS_LOCAL==='undefined') return;
+  const titles=[
+    'Iron Man','Los Vengadores','Iron Man 3','Thor: Ragnarok',
+    'Black Panther','Vengadores: Infinity War','Vengadores: Endgame',
+    'WandaVision','Loki (Temporada 1)','Doctor Strange',
+    'Guardianes de la Galaxia','Spider-Man: No Way Home','Deadpool',
+    'Logan','X-Men','X-Men \'97','Agatha All Along','The Marvels',
+    'Moon Knight','Ironheart','Thunderbolts*','Daredevil: Born Again (Temporada 1)',
+    'Capitana Marvel','Guardianes de la Galaxia Vol. 3'
+  ];
+  titles.forEach(function(title,idx){
+    const src=POSTERS_LOCAL[title];
+    if(!src) return;
+    const img=document.createElement('img');
+    img.src=src;
+    img.alt='';
+    img.loading='lazy';
+    img.decoding='async';
+    img.style.transform='translateY('+(idx%3*7)+'px)';
+    img.addEventListener('error',function(){ img.remove(); });
+    wall.appendChild(img);
+  });
+}
+
 /* ============ TABS: routing por hash + teclado (patrón ARIA tabs) ============ */
 const TAB_IDS=['checklist','xmen','resumenes','plataforma'];
 
@@ -929,6 +967,7 @@ buildResumenes();
 buildPlataforma();
 refreshAllUI();
 setupHeroBg();
+setupPosterWall();
 setupTabs();
 
 })();

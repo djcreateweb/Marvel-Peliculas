@@ -1,84 +1,91 @@
 /* ================================================================
-   FONDO GLOBAL — MCU Tracker · "MULTIVERSO" (Fase 1 — ambiental 2 capas)
-   Requiere css/tokens.css cargado ANTES de este fichero (usa --bg).
-
-   Sustituye el antiguo collage fotográfico de 7 capas (backdrop
-   borroso + skyline + rayo + logo + viñetas, ver historial git) por
-   un fondo ambiental oscuro de 2 capas: glows de gradiente + grano
-   fino. La fotografía queda reservada EXCLUSIVAMENTE al hero
-   (.hero-cinematic__media, ver css/styles.css), con su propio scrim
-   multicapa estilo Netflix.
-
-   Fuente de verdad: design/PLAN-REDISENO-PRO.md — §4 (fondo por
-   capas) y §10 fila "1 · Fondo".
-
-   Este fichero NO toca index.html más allá del markup ya insertado
-   como PRIMER HIJO de <body> (antes de .topbar):
-
-   <div class="bg-fx" aria-hidden="true">
-     <div class="bg-fx__glows"></div>
-     <div class="bg-fx__grain"></div>
-   </div>
-
-   Los ficheros del antiguo collage (backdrop, skyline, rayo, logo,
-   antes bajo la carpeta de fondos legacy) dejan de referenciarse
-   desde aquí; permanecen en disco sin usarse.
+   FONDO GLOBAL — MCU Tracker · MULTIVERSO 2.0
+   Fotografía local muy atenuada + glows + pared de posters. Las fotos
+   se mantienen detrás del contenido y nunca interfieren con controles.
    ================================================================ */
 
-/* ============================================================
-   CONTENEDOR — .bg-fx
-   Fijo (position:fixed), primer hijo de <body>, detrás de todo el
-   contenido real (z-index negativo). No se mueve con el scroll.
-   `pointer-events:none`: puramente decorativo, nunca intercepta
-   clics/touch. `contain:paint`: el navegador no necesita mirar fuera
-   de esta caja para pintarla (menos coste de repaint).
-   `background:var(--bg)`: capa de seguridad, mismo color que --bg,
-   nunca queda vacío aunque las capas hijas tarden en pintar.
-   ============================================================ */
 .bg-fx{
   position:fixed;
   inset:0;
   z-index:-1;
   pointer-events:none;
   contain:paint;
-  background:var(--bg);
+  overflow:hidden;
+  background:#0b0b14;
 }
 
-/* ── Capa 1 · GLOWS — dos radiales de marca sobre --bg ──
-   Coste de pintado casi nulo (sin imágenes/assets), tematizable por
-   token. Violeta arriba-izquierda + azul abajo-derecha, tal cual
-   §4 del plan. SIN animación: nada de "respiración"/parallax en esta
-   capa — un fondo estático es más "pro" y más barato de repintar. */
+.bg-fx__photo{
+  position:fixed;
+  inset:-5%;
+  background-image:
+    linear-gradient(180deg,rgba(9,11,24,.92) 0%,rgba(9,11,24,.87) 38%,rgba(9,11,24,.97) 100%),
+    linear-gradient(90deg,rgba(76,56,158,.26),transparent 48%,rgba(44,89,176,.22)),
+    url('../assets/fondo/endgame-backdrop-2.jpg'),
+    url('../assets/fondo/stark-tower.jpg');
+  background-position:center,center,center top,center bottom;
+  background-size:cover,cover,cover,cover;
+  background-attachment:fixed;
+  filter:saturate(.7) blur(1px);
+  opacity:.36;
+  transform:scale(1.04);
+}
+
 .bg-fx__glows{
   position:fixed;
   inset:0;
-  z-index:-1;
   pointer-events:none;
   background:
-    radial-gradient(60rem 40rem at 15% -10%,  rgb(139 92 246 / .16), transparent 60%),
-    radial-gradient(50rem 35rem at 85% 110%, rgb(96 165 250 / .10), transparent 60%),
-    var(--bg);
+    radial-gradient(52rem 34rem at 7% 4%,rgba(132,95,255,.2),transparent 64%),
+    radial-gradient(48rem 34rem at 94% 40%,rgba(61,121,255,.13),transparent 64%),
+    radial-gradient(42rem 28rem at 50% 106%,rgba(101,67,206,.12),transparent 70%),
+    linear-gradient(180deg,rgba(8,10,21,.08),#0b0b14 86%);
+  mix-blend-mode:screen;
 }
 
-/* ── Capa 2 · GRAIN — grano fílmico fino (SVG feTurbulence) ──
-   Textura estática (nunca animada) en data-URI: sin petición de red,
-   se cachea como el resto del CSS. `baseFrequency:.65` + `numOctaves:3`
-   dan un grano fino homogéneo; `stitchTiles:stitch` evita costuras
-   visibles al repetir el tile de 180px. Opacidad muy baja (.05) +
-   `mix-blend-mode:overlay`: rompe el banding de los radiales de la
-   capa GLOWS y da acabado fílmico, sin aportar peso perceptible. */
 .bg-fx__grain{
   position:fixed;
   inset:0;
-  z-index:-1;
   pointer-events:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size:180px;
-  opacity:.05;
+  opacity:.045;
   mix-blend-mode:overlay;
 }
 
-/* ── Impresión: el fondo decorativo no debe imprimirse ── */
+.poster-wall{
+  position:fixed;
+  inset:-7% -4%;
+  z-index:-1;
+  display:grid;
+  grid-template-columns:repeat(12,minmax(44px,1fr));
+  align-content:space-around;
+  gap:16px;
+  padding:26px;
+  overflow:hidden;
+  pointer-events:none;
+  opacity:.09;
+  filter:blur(2.5px) saturate(.7);
+  transform:rotate(-3deg) scale(1.08);
+  mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 78%,transparent 100%);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 18%,#000 78%,transparent 100%);
+}
+.poster-wall img{
+  width:100%;
+  aspect-ratio:2/3;
+  object-fit:cover;
+  border-radius:10px;
+  opacity:.7;
+  box-shadow:0 9px 24px rgba(0,0,0,.5);
+}
+
+@media (max-width:899px){
+  .bg-fx__photo{opacity:.25;background-position:center,center,58% top,center bottom;}
+  .poster-wall{grid-template-columns:repeat(7,minmax(46px,1fr));gap:10px;padding:14px;opacity:.06;}
+}
+@media (prefers-reduced-transparency:reduce){
+  .bg-fx__photo{opacity:.16;filter:saturate(.45) blur(2px);}
+  .poster-wall{opacity:.035;}
+}
 @media print{
-  .bg-fx{ display:none; }
+  .bg-fx,.poster-wall{display:none;}
 }

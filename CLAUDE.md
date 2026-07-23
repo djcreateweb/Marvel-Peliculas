@@ -34,7 +34,8 @@ js/
                              inline de index.html.
 assets/posters/*.jpg        81 pósters descargados de TMDB (w500), uno por
                              cada item de DATA + XMEN_DATA.
-assets/hero-vengadores.jpg  Imagen de fondo del hero cinematográfico.
+assets/fondo/*.jpg           Fondos locales: hero panorámico, escena secundaria
+                             y skyline usados en las capas ambientales.
 design/, DISENO-*.md,
 disney-links.md             Documentos de diseño/spec previos (histórico,
                              no autoritativos frente al código real).
@@ -132,10 +133,10 @@ obligatoria para cualquier cambio futuro de layout/estilos:
   viewport cruza el breakpoint de 899px con el popover cerrado, la
   siguiente apertura usa el modo correcto (sheet o popover anclado) sin
   necesidad de recargar la página.
-- **`assets/fondo/*` ya no se usa**: el fondo global es `.bg-fx` de 2
-  capas (`.bg-fx__glows` + `.bg-fx__grain`, sin fotos) definido en
-  `css/background.css`. La única foto de fondo que sigue en uso es
-  `assets/hero-vengadores.jpg` (HERO_LOCAL), y solo dentro del hero.
+- **Fondo ambiental multicapa**: `.bg-fx` combina las fotografías locales de
+  `assets/fondo/*` con glows y grano; `#posterWall` añade una selección de
+  posters locales como textura visual de baja opacidad. `HERO_LOCAL` apunta a
+  `assets/fondo/endgame-backdrop.jpg` para la portada cinematográfica.
 - **`css/tokens.css` tiene tokens canónicos + alias legacy**: los
   nombres nuevos (`--surface-1/2/3`, `--accent`, `--accent-fill`,
   `--accent-2`, `--accent-deep`, `--fs-hero/h2/title/body/meta/label/

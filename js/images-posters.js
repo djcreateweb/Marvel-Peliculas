@@ -84,4 +84,4 @@ const POSTERS_LOCAL = {
   "Los Nuevos Mutantes": "assets/posters/los-nuevos-mutantes.jpg",
   "X-Men '97": "assets/posters/x-men-97.jpg",
 };
-const HERO_LOCAL = "assets/hero-vengadores.jpg";
+const HERO_LOCAL = "assets/fondo/endgame-backdrop.jpg";
