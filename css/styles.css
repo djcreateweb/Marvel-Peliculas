@@ -1287,12 +1287,22 @@ footer{margin-top:74px;padding-top:23px;color:#858ba8;border-color:rgba(184,190,
   .brand-mark{width:30px;height:30px;}
   .topbar-progress .pct{font-size:9px;letter-spacing:.05em;}
   .mini-bar{width:68px;height:5px;}
-  .hero-cinematic{min-height:620px;}
-  /* Móvil: un solo velo vertical — imagen limpia arriba, oscurecido
-     progresivo abajo donde vive el texto. background-size explícito:
-     aquí solo hay 2 capas y no debe heredar el zoom de escritorio. */
-  .hero-cinematic__media{background-image:linear-gradient(180deg,rgba(6,8,18,.5) 0%,rgba(7,9,20,.12) 30%,rgba(11,13,27,.8) 76%,#0b0d1b 100%),var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));background-position:center,62% 24%;background-size:auto,cover;}
-  .hero-cinematic__content{padding:70px 16px 42px;}
+  .hero-cinematic{min-height:680px;}
+  /* Móvil: MISMA composición que escritorio, comprimida — zoom con la
+     ventana visible empezando en la zona de Thanos (~28% de la foto):
+     el texto queda a la izquierda sobre lo oscuro y el reparto (Iron
+     Man y compañía) a la derecha; mismo velo lateral 90deg + fundido
+     inferior. background-size explícito: 3 capas, sin heredar el
+     max(100%,240vh) de escritorio, que aquí dejaría solo a Thanos. */
+  .hero-cinematic__media{
+    background-image:
+      linear-gradient(90deg,rgba(6,8,18,.88) 0%,rgba(7,9,20,.52) 34%,rgba(8,10,23,.1) 62%,rgba(8,10,23,.2) 100%),
+      linear-gradient(0deg,#0b0d1b 4%,rgba(11,13,27,.68) 30%,rgba(11,13,27,.05) 62%),
+      var(--hero-img,url('../assets/fondo/endgame-backdrop.jpg'));
+    background-position:center,center,28% 16%;
+    background-size:auto,auto,auto 118%;
+  }
+  .hero-cinematic__content{padding:150px 16px 40px;}
   .hero-kicker{gap:7px;font-size:8px;letter-spacing:.12em;}
   .hero-kicker i{width:15px;}
   .hero-eyebrow{font-size:9px;letter-spacing:.12em;}

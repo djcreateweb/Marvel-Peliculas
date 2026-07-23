@@ -131,7 +131,12 @@ respetarlas o migrar explícitamente los datos existentes.
   mantener esa conversión (bug real: el hero estuvo meses sin fotografía).
 - **Hero**: velos ligeros (la foto se ve; la legibilidad la dan el
   gradiente inferior y los text-shadow) + animación `heroDrift` (16s,
-  scale 1.07→1.005). En ≤599px un único gradiente vertical.
+  scale 1.07→1.005). Composición "texto izquierda / reparto derecha" en
+  TODOS los anchos: la imagen va con zoom y ancla izquierda
+  (escritorio `max(100%,240vh)` + position X=0; tablet `auto 118%`;
+  móvil `auto 118%` + position X=28% para arrancar en la zona oscura de
+  Thanos). El titular fuerza 2 líneas (`display:block` en
+  `.metal-title/-accent`) para no invadir los rostros.
 - **Bottom nav (<900px)**: la capa "MULTIVERSO 2.0" define
   `.tabs-bar{top:var(--topbar-h)}` para el sticky de escritorio; su
   bloque `@media (max-width:899px)` re-aserta `top:auto;bottom:0` — si se
