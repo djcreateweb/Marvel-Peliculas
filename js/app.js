@@ -62,6 +62,7 @@ function saveRatings(){ localStorage.setItem(RATINGS_KEY,JSON.stringify(ratings)
 function setRating(t,val){
   if(val===''){ delete ratings[t]; }else{ ratings[t]=Number(val); }
   saveRatings();
+  syncMediaRating(t); // refleja la nota en las tarjetas de Resúmenes/Plataforma
 }
 
 /* ============ ÍNDICES AUXILIARES ============ */
@@ -396,7 +397,17 @@ function buildPhase(ph){
   const countEl=document.createElement('span'); countEl.className='count';
   const countB=document.createElement('b'); countB.textContent='0';
   countEl.append(countB,document.createTextNode(' / '+ph.items.length));
-  head.append(h2,years,pctEl,countEl);
+  head.append(h2,years);
+  const totalMin=ph.items.reduce(function(acc,i){ return acc+(i.m||0); },0);
+  if(totalMin){
+    const phDur=document.createElement('span');
+    phDur.className='phase-duration';
+    phDur.title='Metraje total de la fase';
+    phDur.innerHTML=CLOCK;
+    phDur.appendChild(document.createTextNode('≈ '+Math.round(totalMin/60)+' h'));
+    head.append(phDur);
+  }
+  head.append(pctEl,countEl);
 
   const track=document.createElement('div'); track.className='phase-progress-track';
   const fill=document.createElement('div'); fill.className='phase-progress-fill'; fill.style.width='0%';
@@ -406,7 +417,7 @@ function buildPhase(ph){
   ph.items.forEach(it=>grid.appendChild(buildItemRow(it)));
 
   sec.append(head,track,grid);
-  phaseRefs.set(ph.phase,{items:ph.items,totalPh:ph.items.length,pctEl,countEl:countB,fillEl:fill});
+  phaseRefs.set(ph.phase,{items:ph.items,totalPh:ph.items.length,pctEl,countEl:countB,fillEl:fill,sec:sec});
   return sec;
 }
 
@@ -476,6 +487,15 @@ function buildMediaCard(it, kind){
   seen.innerHTML=TICK;
   art.appendChild(seen);
 
+  // Tu nota, si existe (se sincroniza en syncMediaRating vía setRating)
+  if(ratings[it.t]!=null){
+    const notaEl=document.createElement('span');
+    notaEl.className='media-card__nota';
+    notaEl.title='Tu nota';
+    notaEl.textContent='★ '+ratings[it.t];
+    art.appendChild(notaEl);
+  }
+
   const body=document.createElement('span');
   body.className='media-card__body';
   const titleEl=document.createElement('span'); titleEl.className='media-card__title'; titleEl.textContent=it.t;
@@ -513,6 +533,27 @@ function buildMediaShelf(containerId, kind){
       cont.appendChild(divXmen);
     }
     cont.appendChild(buildMediaCard(it,kind));
+  });
+}
+
+/* Refleja (o retira) la insignia "★ nota" en las tarjetas de ambas
+   estanterías. La llama setRating() en cada cambio; en reconstrucciones
+   completas la insignia la pinta directamente buildMediaCard. */
+function syncMediaRating(t){
+  const cards=mediaRefs.get(t);
+  if(!cards) return;
+  const val=ratings[t];
+  cards.forEach(function(card){
+    let badge=card.querySelector('.media-card__nota');
+    if(val==null){ if(badge) badge.remove(); return; }
+    if(!badge){
+      badge=document.createElement('span');
+      badge.className='media-card__nota';
+      badge.title='Tu nota';
+      const art=card.querySelector('.media-card__art');
+      if(art) art.appendChild(badge);
+    }
+    badge.textContent='★ '+val;
   });
 }
 
@@ -564,6 +605,24 @@ function updateGlobalUI(){
   document.getElementById('heroCount').textContent=done+' / '+total+' títulos';
   const ring=document.getElementById('heroRingProgress');
   if(ring) ring.style.strokeDashoffset=String(RING_CIRCUMFERENCE*(1-pct/100));
+
+  // Tira de tiempo: horas de metraje vistas vs. restantes
+  const minTotal=TRACKED_ITEMS.reduce(function(a,it){ return a+(it.m||0); },0);
+  const minSeen=TRACKED_ITEMS.reduce(function(a,it){ return a+(state[it.t]?(it.m||0):0); },0);
+  const timeSeenEl=document.getElementById('timeSeen');
+  const timeLeftEl=document.getElementById('timeLeft');
+  const timeFillEl=document.getElementById('timeFill');
+  if(timeSeenEl&&timeLeftEl&&timeFillEl){
+    timeSeenEl.textContent='≈ '+Math.round(minSeen/60)+' h vistas';
+    timeLeftEl.textContent= left===0 ? 'multiverso completo' : 'quedan ≈ '+Math.round((minTotal-minSeen)/60)+' h';
+    timeFillEl.style.width=(minTotal?Math.round(minSeen/minTotal*100):0)+'%';
+  }
+
+  // CTA del hero según el estado de la maratón
+  const heroCtaEl=document.getElementById('heroCta');
+  if(heroCtaEl){
+    heroCtaEl.textContent = left===0 ? 'Multiverso completado' : (done>0 ? 'Continuar maratón' : 'Empezar recorrido');
+  }
 }
 
 function refreshAllUI(){
@@ -572,6 +631,7 @@ function refreshAllUI(){
     updatePhaseUI(ph.phase);
   });
   updateGlobalUI();
+  applyFilters(); // p. ej. tras importar/restablecer, el filtro de estado sigue siendo coherente
 }
 
 function toggleItem(t){
@@ -580,6 +640,101 @@ function toggleItem(t){
   updateItemUI(t);
   updatePhaseUI(titleToPhase.get(t));
   updateGlobalUI();
+  applyFilters(); // con el filtro "Pendientes"/"Vistos" activo, la fila cambia de lista al marcarla
+}
+
+/* ============ FILTROS DEL CHECKLIST (solo visuales) ============
+   Ocultan filas (.is-filtered-out) y fases vacías sin tocar state,
+   ratings ni los contadores de progreso. Solo afectan a las fases de
+   DATA (la pestaña X-Men, con 19 items, no lleva filtros). */
+const filterState={q:'',type:'all',estado:'all'};
+
+function normalizeText(s){
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function applyFilters(){
+  const q=normalizeText(filterState.q.trim());
+  let anyVisible=false;
+  DATA.forEach(function(ph){
+    let visible=0;
+    ph.items.forEach(function(it){
+      const ref=itemRefs.get(it.t);
+      if(!ref) return;
+      const matchQ=!q || normalizeText(it.t).indexOf(q)!==-1;
+      const matchT=filterState.type==='all' || it.type===filterState.type;
+      const isSeen=!!state[it.t];
+      const matchE=filterState.estado==='all' || (filterState.estado==='visto' ? isSeen : !isSeen);
+      const show=matchQ&&matchT&&matchE;
+      ref.row.classList.toggle('is-filtered-out',!show);
+      if(show) visible++;
+    });
+    const pref=phaseRefs.get(ph.phase);
+    if(pref&&pref.sec) pref.sec.classList.toggle('is-filtered-out',visible===0);
+    if(visible>0) anyVisible=true;
+  });
+  const emptyEl=document.getElementById('filterEmpty');
+  if(emptyEl) emptyEl.hidden=anyVisible;
+}
+
+function setupFilters(){
+  const input=document.getElementById('filterSearch');
+  const bar=document.querySelector('.filterbar');
+  if(!input||!bar) return;
+  input.addEventListener('input',function(){
+    filterState.q=input.value;
+    applyFilters();
+  });
+  bar.querySelectorAll('.fchip').forEach(function(chip){
+    chip.addEventListener('click',function(){
+      if(chip.dataset.ftype!==undefined){ filterState.type=chip.dataset.ftype; }
+      else{ filterState.estado=chip.dataset.festado; }
+      chip.parentElement.querySelectorAll('.fchip').forEach(function(s){
+        const active=s===chip;
+        s.classList.toggle('active',active);
+        s.setAttribute('aria-pressed',String(active));
+      });
+      applyFilters();
+    });
+  });
+}
+
+/* ============ «CONTINUAR MARATÓN»: salta al primer pendiente ============ */
+function setupContinue(){
+  const btn=document.getElementById('heroContinue');
+  if(!btn) return;
+  const XMEN_PHASE=XMEN_DATA[0].phase;
+  btn.addEventListener('click',function(e){
+    const next=TRACKED_ITEMS.find(function(it){ return !state[it.t]; });
+    if(!next) return; // todo visto: se queda la navegación normal a #checklist
+    e.preventDefault();
+    const tab = titleToPhase.get(next.t)===XMEN_PHASE ? 'xmen' : 'checklist';
+    activateTab(tab);
+    if(location.hash.slice(1)!==tab) location.hash=tab;
+    const ref=itemRefs.get(next.t);
+    if(!ref) return;
+    const smooth=window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+    setTimeout(function(){
+      ref.row.scrollIntoView({behavior:smooth,block:'center'});
+      ref.row.classList.add('is-flash');
+      setTimeout(function(){ ref.row.classList.remove('is-flash'); },2400);
+    },90);
+  });
+}
+
+/* ============ BOTÓN VOLVER-ARRIBA ============ */
+function setupToTop(){
+  const btn=document.getElementById('toTop');
+  if(!btn) return;
+  let shown=false;
+  window.addEventListener('scroll',function(){
+    const show=window.scrollY>700;
+    if(show!==shown){ shown=show; btn.classList.toggle('is-show',show); }
+  },{passive:true});
+  btn.addEventListener('click',function(){
+    const smooth=window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth';
+    window.scrollTo({top:0,behavior:smooth});
+  });
 }
 
 /* ============ HERO: imagen de fondo vía custom property ============
@@ -817,5 +972,8 @@ setupHeroBg();
 setupPosterWall();
 setupTabs();
 setupSync();
+setupFilters();
+setupContinue();
+setupToTop();
 
 })();

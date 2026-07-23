@@ -155,6 +155,22 @@ respetarlas o migrar explícitamente los datos existentes.
   retirar siempre clase/scrim.
 - **`css/tokens.css` mantiene alias legacy** (`--surface`, `--blue`,
   `--brand-purple*`, etc.) — no eliminarlos sin migrar cada selector.
+- **Filtros del checklist** (`.filterbar`: búsqueda + tipo + estado):
+  SOLO visuales — ocultan filas/fases con `.is-filtered-out` sin tocar
+  `state`/`ratings` ni contadores. Solo aplican a las fases de `DATA`
+  (X-Men sin filtros). `applyFilters()` se llama desde `refreshAllUI()`
+  y `toggleItem()` para mantener coherencia; `phaseRefs` guarda ahora
+  también `sec` (el nodo de la fase) para poder ocultar fases vacías.
+- **Tira de tiempo** (`#timeSeen/#timeLeft/#timeFill`) y **CTA dinámico
+  del hero** (`#heroCta`: Empezar/Continuar/Completado) se actualizan en
+  `updateGlobalUI()`. «Continuar maratón» (`#heroContinue`,
+  `setupContinue()`) salta al primer item de `TRACKED_ITEMS` sin marcar
+  (pestaña correcta incluida) y le aplica `.is-flash` 2,4s.
+- **Nota en las estanterías**: `buildMediaCard` pinta `.media-card__nota`
+  («★ n») si hay nota, y `setRating()` llama a `syncMediaRating(t)` para
+  crearla/actualizarla/retirarla en vivo vía `mediaRefs`.
+- **`.to-top`** (volver arriba): fijo, z-index 39 (bajo la bottom nav 40),
+  aparece con `scrollY>700`; en <900px se eleva sobre la bottom nav.
 - **Sincronizar dispositivos** (botón `.sync` en la toolbar del
   checklist): exporta/importa progreso+notas sin servidor. Formato del
   código: `MCU1.` + base64 de JSON `{v:1,seen:[títulos],ratings:{}}`

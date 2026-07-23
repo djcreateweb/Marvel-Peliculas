@@ -16,6 +16,30 @@ formal); las entradas se agrupan por fecha de sesión de trabajo.
 
 ---
 
+## [2026-07-23] — Parte 6: Filtros, tiempo de maratón y mejoras de uso
+
+### Añadido
+- **Barra de filtros del checklist** (búsqueda con acentos normalizados +
+  chips de tipo Película/Serie/Especial + estado Pendientes/Vistos).
+  Filtro solo visual (`.is-filtered-out` en filas y fases vacías, mensaje
+  de "sin resultados"); no toca `state`/`ratings` ni contadores. Se
+  re-aplica al marcar títulos, importar o restablecer.
+- **Tira de tiempo** bajo las stats: horas de metraje vistas vs.
+  restantes con barra de progreso (suma de `m`, actualizada en
+  `updateGlobalUI`).
+- **Metraje total por fase** («⏱ ≈ N h») en la cabecera de cada fase.
+- **Tu nota en las estanterías**: insignia «★ n» en las tarjetas de
+  Resúmenes/Plataforma, sincronizada en vivo al puntuar
+  (`syncMediaRating` desde `setRating`).
+- **CTA del hero dinámico**: «Empezar recorrido» → «Continuar maratón» →
+  «Multiverso completado» según progreso; al pulsarlo salta a la pestaña
+  correcta, centra el primer título pendiente y lo destaca 2,4 s
+  (`.is-flash`). Respeta `prefers-reduced-motion`.
+- **Botón volver-arriba** flotante (aparece tras 700 px de scroll;
+  z-index 39, elevado sobre la bottom nav en móvil).
+
+---
+
 ## [2026-07-23] — Parte 5: Sincronizar dispositivos (exportar/importar)
 
 ### Añadido

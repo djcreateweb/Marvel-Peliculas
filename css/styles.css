@@ -1410,3 +1410,111 @@ body.modal-open{overflow:hidden;overscroll-behavior:contain;}
   .sync-action:hover{border-color:rgba(160,143,255,.5);background:rgba(255,255,255,.08);}
   .sync-action--primary:hover{background:linear-gradient(110deg,#9a79ff,#6fa9ff);box-shadow:0 12px 30px rgba(89,91,226,.4);}
 }
+
+/* ================================================================
+   MEJORAS 2026-07-23 (sesión "sigue mejorando"):
+   filtros del checklist · tira de tiempo · duración por fase ·
+   nota en media-cards · flash de "continuar" · botón volver-arriba
+   ================================================================ */
+
+/* ── Barra de filtros (checklist): búsqueda + tipo + estado ──
+   Filtro SOLO visual: oculta filas/fases con .is-filtered-out, no toca
+   state/ratings ni los contadores de progreso. */
+.filterbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:16px 0 4px;}
+.filterbar__search{position:relative;flex:1 1 220px;min-width:180px;display:flex;align-items:center;}
+.filterbar__search svg{position:absolute;left:12px;color:var(--muted);pointer-events:none;}
+.filterbar__search input{
+  width:100%;min-height:38px;padding:0 12px 0 34px;
+  font-family:var(--font-body);font-size:13px;color:var(--text);
+  background:rgba(16,18,34,.66);border:1px solid rgba(184,190,239,.16);border-radius:var(--r-full);
+  transition:border-color var(--dur-fast) var(--ease-smooth),background var(--dur-fast) var(--ease-smooth);
+}
+.filterbar__search input::placeholder{color:var(--muted);}
+.filterbar__search input:focus-visible{outline:2px solid var(--accent-2);outline-offset:1px;border-color:transparent;}
+.filterbar__search input::-webkit-search-cancel-button{-webkit-appearance:none;}
+.filterbar__group{display:flex;gap:5px;flex-wrap:wrap;}
+.fchip{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:30px;padding:0 12px;border-radius:var(--r-full);cursor:pointer;
+  font-family:var(--font-body);font-weight:var(--fw-semibold);font-size:10.5px;
+  letter-spacing:.05em;text-transform:uppercase;
+  color:var(--text-2);background:rgba(255,255,255,.035);border:1px solid rgba(185,190,239,.16);
+  transition:color var(--dur-fast) var(--ease-smooth),border-color var(--dur-fast) var(--ease-smooth),background var(--dur-fast) var(--ease-smooth);
+}
+.fchip.active{color:#fff;background:linear-gradient(110deg,rgba(123,87,236,.5),rgba(62,127,238,.4));border-color:rgba(155,142,255,.55);}
+.fchip:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;}
+.fchip:active{transform:scale(.97);}
+.item.is-filtered-out{display:none;}
+.phase.is-filtered-out{display:none;}
+.filter-empty{margin:26px 2px 0;font-size:13px;color:var(--text-2);}
+
+/* ── Tira de tiempo: horas de metraje vistas vs. restantes ── */
+.time-strip{
+  display:flex;align-items:center;gap:10px;
+  margin:10px 0 12px;padding:9px 14px;
+  background:rgba(16,18,34,.5);border:1px solid rgba(184,190,239,.1);border-radius:var(--r-full);
+  color:var(--text-2);font-size:11.5px;font-weight:500;
+}
+.time-strip svg{flex-shrink:0;color:var(--muted);}
+.time-strip span{white-space:nowrap;font-variant-numeric:tabular-nums;font-feature-settings:'tnum';}
+.time-strip__bar{flex:1 1 auto;height:5px;border-radius:var(--r-full);background:rgba(135,143,211,.14);overflow:hidden;}
+.time-strip__fill{height:100%;width:0;border-radius:var(--r-full);background:var(--brand-gradient);box-shadow:0 0 8px rgba(130,103,255,.5);transition:width var(--dur-slower) var(--ease-smooth);}
+
+/* ── Metraje total en la cabecera de cada fase ── */
+.phase-duration{
+  display:inline-flex;align-items:center;gap:5px;white-space:nowrap;
+  font-size:11px;font-weight:500;color:#8e94b1;
+  font-variant-numeric:tabular-nums;font-feature-settings:'tnum';
+}
+.phase-duration svg{color:#8e94b1;flex-shrink:0;}
+
+/* ── Tu nota en las tarjetas de Resúmenes/Plataforma ── */
+.media-card__nota{
+  position:absolute;z-index:3;bottom:8px;left:8px;
+  display:inline-flex;align-items:center;
+  padding:3px 8px;border-radius:var(--r-full);
+  font-family:var(--font-body);font-weight:var(--fw-semibold);font-size:10px;
+  letter-spacing:.03em;color:#fff;
+  background:linear-gradient(110deg,rgba(123,87,236,.85),rgba(62,127,238,.8));
+  border:1px solid rgba(190,175,255,.5);
+  box-shadow:0 2px 8px rgba(0,0,0,.4);
+  font-variant-numeric:tabular-nums;
+}
+
+/* ── Realce temporal de la fila destino de «Continuar maratón» ── */
+.item.is-flash{
+  border-color:var(--accent-2);
+  box-shadow:0 0 0 2px rgb(96 165 250 / .55), 0 0 24px rgb(96 165 250 / .3);
+}
+
+/* ── Botón flotante volver-arriba (bajo la bottom nav en z-index) ── */
+.to-top{
+  position:fixed;right:16px;bottom:22px;z-index:39;
+  width:42px;height:42px;border-radius:50%;
+  display:grid;place-items:center;cursor:pointer;
+  color:var(--text-2);
+  background:rgba(14,16,30,.85);border:1px solid rgba(184,190,239,.25);
+  backdrop-filter:blur(8px);
+  box-shadow:0 10px 26px rgba(0,0,0,.4);
+  opacity:0;transform:translateY(8px);pointer-events:none;
+  transition:opacity var(--dur-normal) var(--ease-smooth),transform var(--dur-normal) var(--ease-smooth),color var(--dur-fast) var(--ease-smooth),border-color var(--dur-fast) var(--ease-smooth);
+}
+.to-top.is-show{opacity:1;transform:none;pointer-events:auto;}
+.to-top:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;}
+.to-top:active{transform:scale(.94);}
+@media (max-width:899px){
+  .to-top{right:12px;bottom:calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 14px);}
+}
+@media (max-width:599px){
+  .filterbar{gap:8px;}
+  .filterbar__search{flex-basis:100%;}
+  .filterbar__group{width:100%;}
+  .fchip{flex:1 1 auto;padding:0 8px;}
+  .time-strip{padding:8px 12px;gap:8px;font-size:10px;}
+}
+@media (hover:hover) and (pointer:fine){
+  .filterbar__search input:hover{border-color:rgba(184,190,239,.3);}
+  .fchip:hover{color:var(--text);border-color:rgba(160,143,255,.45);background:rgba(255,255,255,.07);}
+  .fchip.active:hover{color:#fff;}
+  .to-top:hover{color:var(--text);border-color:rgba(160,143,255,.55);}
+}
